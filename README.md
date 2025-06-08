@@ -1,95 +1,103 @@
-# 🎁 Donation Cube - LED Controller
+# 🎁 Modular Donation Box - LED Controller
 
-An automatic LED animation and sound system for donation boxes that triggers spectacular light effects and sound effects with every donation.
+A professional modular LED animation system for donation boxes featuring multiple lighting modes, automatic mode switching, and spectacular donation effects.
 
 ## 📋 Overview
 
-This project implements an intelligent controller for a donation box that:
-- Shows continuous LED color rotation in standby mode
-- Starts a spectacular 800ms animation when a donation is detected
-- Plays synchronous sound effects via a DFPlayer Mini
-- Implements a 2-second debounce against sensor flickering
+This project implements a modular controller system for donation boxes with:
+- **6 different LED animation modes** with unique effects
+- **Automatic mode switching** every 2-5 seconds after donation effects
+- **Professional donation detection** with edge detection and debouncing
+- **Modular architecture** with services, controllers, and mode system
+- **Mode metadata** for debugging and extensibility
+- **White LED focus** with brightness and pattern variations
+
+## 🎨 Animation Modes
+
+| Mode | Name | Author | Description | Donation Effect |
+|------|------|--------|-------------|-----------------|
+| **1** | Static Breathing | Friedjof v1.0.0 | Gentle breathing effect with white LEDs | Faster breathing |
+| **2** | Wave Motion | Friedjof v1.0.0 | Wave effect moving through LED strip | Rapid wave motion |
+| **3** | Random Blink | Friedjof v1.0.0 | Random blinking pattern with white LEDs | Intense blinking |
+| **4** | Half Switch | Friedjof v1.0.0 | Alternating first and second half illumination | Fast switching |
+| **5** | Center Expansion | Friedjof v1.0.0 | Light expanding from center outwards | Rapid expansion |
+| **6** | Chase Light | Friedjof v1.0.0 | Moving light with trailing tail effect | High-speed chase |
+
+## 🏗️ Architecture
+
+### Modular Design
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Controller    │───▶│   Services      │◀───│   LED Modes     │
+│                 │    │                 │    │                 │
+│ • Mode Manager  │    │ • LightService  │    │ • StaticMode    │
+│ • Sensor Logic  │    │ • SensorService │    │ • WaveMode      │
+│ • Auto Switch   │    │ • SpeakerService│    │ • BlinkMode     │
+└─────────────────┘    └─────────────────┘    │ • HalfMode      │
+                                              │ • CenterMode    │
+                                              │ • ChaseMode     │
+                                              └─────────────────┘
+```
+
+### Service Layer
+- **LightService**: FastLED wrapper with CRGB color management
+- **SensorService**: TCRT5000 with edge detection and debouncing  
+- **SpeakerService**: Mock implementation for future sound integration
+
+### Mode System
+- **AbstractMode**: Base class with donation effect framework
+- **Mode Metadata**: Name, description, author, version for each mode
+- **Automatic Lifecycle**: Setup → Loop → Donation Effect → Deactivation
 
 ## 🔧 Hardware Components
 
 | Component | Description | Purpose |
 |-----------|-------------|---------|
-| **ESP8266 (Wemos D1 Mini)** | Microcontroller | Main control |
-| **WS2812B LED-Strip** | 6 addressable LEDs | Light effects |
+| **ESP32-C3** | Microcontroller | Main control |
+| **WS2812B LED-Strip** | Addressable white LEDs | Light effects |
 | **TCRT5000 Reflection Sensor** | Infrared sensor | Donation detection |
-| **DFPlayer Mini** | MP3 module | Sound playback |
-| **MicroSD Card** | Storage (FAT32) | MP3 files |
-| **Speaker** | Audio output | Sound effects |
 
 ## 🔌 Pin Configuration
 
-| ESP8266 Pin | Function | Component | Description |
-|-------------|----------|-----------|-------------|
-| **D2** | `SENSOR_PIN` | TCRT5000 | Donation sensor (INPUT_PULLUP) |
-| **D3** | `DATA_PIN` | WS2812B | LED strip data line |
-| **D5** | `DFPLAYER_RX` | DFPlayer Mini TX | Serial communication |
-| **D6** | `DFPLAYER_TX` | DFPlayer Mini RX | Serial communication |
+| ESP32-C3 Pin | Function | Component | Description |
+|--------------|----------|-----------|-------------|
+| **GPIO2** | `SENSOR_PIN` | TCRT5000 | Donation sensor (INPUT_PULLUP) |
+| **GPIO8** | `DATA_PIN` | WS2812B | LED strip data line |
 
 ## 🔧 Wiring
 
-### DFPlayer Mini
-```
-DFPlayer  →  ESP8266     | Description
-----------|--------------|-------------
-VCC       →  5V/3.3V     | Power supply
-GND       →  GND         | Ground
-TX        →  D5          | DFPlayer output → ESP8266 input
-RX        →  D6          | DFPlayer input ← ESP8266 output
-SPK+      →  Speaker+    | Speaker positive
-SPK-      →  Speaker-    | Speaker negative
-```
-
 ### LED-Strip (WS2812B)
 ```
-LED-Strip →  ESP8266     | Description
+LED-Strip →  ESP32-C3    | Description
 ----------|--------------|-------------
 VCC       →  5V          | Power supply
 GND       →  GND         | Ground
-DIN       →  D3          | Data line
+DIN       →  GPIO8       | Data line
 ```
 
 ### TCRT5000 Sensor
 ```
-Sensor    →  ESP8266     | Description
+Sensor    →  ESP32-C3    | Description
 ----------|--------------|-------------
 VCC       →  3.3V        | Power supply
 GND       →  GND         | Ground
-OUT       →  D2          | Digital output
+OUT       →  GPIO2       | Digital output
 ```
 
-## 💾 MicroSD Card Setup
-
-### Format and Structure
-- **Format**: FAT32
-- **Files in root directory**:
-  ```
-  /
-  ├── 001.mp3  → Main sound for donation detection
-  ├── 002.mp3  → Optional: Additional sounds
-  └── 003.mp3  → Optional: Additional sounds
-  ```
-
-### Audio Specifications
-- **Supported formats**: MP3, WAV
-- **Bitrate**: 8–320 kbps
-- **Recommended length**: 2-5 seconds for optimal user experience
-
-## 🎨 Animation Sequence
+## 🎯 Donation Effect Sequence
 
 | Phase | Duration | Effect | Description |
 |-------|----------|--------|-------------|
-| **1** | 200ms | White Flash | All LEDs light up white |
-| **2** | 200ms | Rainbow Wave | Color wave across all LEDs |
-| **3** | 400ms | Fast Color Rotation | All LEDs rotate quickly through colors |
-| **End** | - | Normal Rotation | Back to continuous color rotation |
+| **1** | Instant | Mode-specific Effect | Current mode's donation animation |
+| **2** | 2-5 seconds | Enhanced Animation | Faster/brighter version of mode |
+| **3** | Instant | Mode Switch | Automatic switch to next mode |
+| **4** | Continuous | New Mode | Next mode starts its normal animation |
 
-**Total**: 800ms animation + sound effect  
-**Debounce**: 2 seconds pause between animations
+**Features**:
+- Each mode has unique donation effects
+- Automatic mode progression for variety
+- Professional edge detection prevents false triggers
+- Mode information logged via Serial for debugging
 
 ## 🚀 Installation & Setup
 
@@ -99,8 +107,8 @@ OUT       →  D2          | Digital output
 pip install platformio
 
 # Clone project
-git clone git@github.com:munichmakerlab/donation-cube.git
-cd donation-cube
+git clone <your-repo-url>
+cd SpendenBox
 
 # Install dependencies
 pio lib install
@@ -111,98 +119,144 @@ pio lib install
 # Compile code
 pio run
 
-# Upload to ESP8266
+# Upload to ESP32-C3
 pio run --target upload
 
-# Open serial monitor
+# Open serial monitor for debugging
 pio device monitor --baud 115200
 ```
 
 ### 3. Hardware Tests
-1. **LED Test**: After startup, LEDs should show continuous color rotation
-2. **Sensor Test**: Move object in front of TCRT5000
-3. **Sound Test**: Sound should play when sensor is triggered
+1. **LED Test**: After startup, LEDs should show first mode animation
+2. **Sensor Test**: Wave hand in front of TCRT5000
+3. **Mode Switch Test**: Trigger donation to see mode changes
 
 ## 📚 Used Libraries
 
 | Library | Version | Purpose |
 |---------|---------|---------|
 | [FastLED](https://github.com/FastLED/FastLED) | ≥3.6.0 | WS2812B LED strip control |
-| [DFRobotDFPlayerMini](https://github.com/DFRobot/DFRobotDFPlayerMini) | ≥1.0.5 | MP3 player control |
-| [SoftwareSerial](https://www.arduino.cc/en/Reference/SoftwareSerial) | Arduino Core | Serial communication |
 
 ## 🛠️ Configuration
 
-### LED Settings
+### LED Settings (`include/Config.h`)
 ```cpp
-#define NUM_LEDS 6           // Number of LEDs in strip
-#define BRIGHTNESS 255       // Brightness (0-255)
-#define SATURATION 255       // Color saturation (0-255)
+#define NUM_LEDS 30          // Number of LEDs in strip
+#define DATA_PIN 8           // GPIO pin for LED data
+#define SENSOR_PIN 2         // GPIO pin for donation sensor
 ```
 
-### Timing Parameters
+### Mode Development
+To create a new mode:
+
+1. **Create mode files**:
 ```cpp
-#define DEBOUNCE_TIME 2000      // Debounce time in ms
-#define ANIMATION_DURATION 800  // Animation duration in ms
+// lib/NewMode/NewMode.hpp
+class NewMode : public AbstractMode {
+public:
+    NewMode(LightService* lightService, SpeakerService* speakerService);
+    void setup() override;
+    void loop() override;
+    void donationTriggered() override;
+};
+
+// lib/NewMode/NewMode.cpp
+NewMode::NewMode(LightService* lightService, SpeakerService* speakerService) 
+    : AbstractMode(lightService, speakerService,
+                  "Your Mode Name",
+                  "Mode description", 
+                  "Your Name",
+                  "v1.0.0") {
+}
 ```
 
-### Audio Settings
+2. **Register in main.cpp**:
 ```cpp
-dfPlayer.volume(25);        // Volume (0-30)
-dfPlayer.play(1);           // Play file 001.mp3
+#include "NewMode.hpp"
+// ...
+NewMode* newMode = new NewMode(lightService, speakerService);
+controller->addMode(newMode);
 ```
 
 ## 🔍 Troubleshooting
 
-### DFPlayer Mini Issues
-```
-ERROR: DFPlayer Mini not connected!
-Check:
-1. Wiring (RX->D5, TX->D6, VCC->5V, GND->GND)
-2. MicroSD card inserted
-3. MP3 files on SD card
-```
-
-**Solutions**:
-- Check wiring
-- Format SD card (FAT32)
-- Name MP3 files correctly (001.mp3, 002.mp3, ...)
-- Check power supply
-
 ### LED Issues
-- **LEDs not lighting**: Check power supply and data line
-- **Wrong colors**: Adjust `FastLED.setCorrection()`
-- **Flickering**: Stabilize power supply
+```
+ERROR: LEDs not responding
+Check:
+1. Power supply (5V for LED strip)
+2. Data line connection (GPIO8)
+3. Ground connection
+4. LED strip compatibility (WS2812B)
+```
 
 ### Sensor Issues
-- **No detection**: Adjust sensor sensitivity
-- **Constant trigger**: Increase debounce time
-- **Unreliable**: Optimize sensor position
+```
+ERROR: Sensor not detecting or constantly triggering
+Solutions:
+1. Adjust sensor sensitivity potentiometer
+2. Check sensor positioning
+3. Verify 3.3V power supply
+4. Test with different objects
+```
+
+### Compilation Issues
+```
+ERROR: Library not found
+Solutions:
+1. Install FastLED: pio lib install FastLED
+2. Check platformio.ini configuration
+3. Verify include paths
+```
 
 ## 📖 Serial Monitor Output
 
 ```
-+=============================================+
-|        SPENDENBOX LED CONTROLLER            |
-+=============================================+
-Initialisiere DFPlayer Mini...
-DFPlayer Mini erfolgreich initialisiert!
-SpendenBox LED Controller bereit!
-Warte auf Spenden...
+[INFO] Starting modular donation box system...
+[INFO] Controller setup started
+========================================
+           MODE INFORMATION
+========================================
+Name:        Static Breathing
+Description: Gentle breathing effect with white LEDs
+Author:      Friedjof
+Version:     v1.0.0
+========================================
+[INFO] Activated initial mode with 6 total modes
+[INFO] Setup complete. Donation box ready!
 
-*** SPENDE ERKANNT! Animation und Sound starten! ***
-Animation beendet - zurück zur Farbrotation
+*** DONATION DETECTED! ***
+[StaticMode] Donation detected - starting breathing effect
+========================================
+           MODE INFORMATION
+========================================
+Name:        Wave Motion
+Description: Wave effect moving through LED strip
+Author:      Friedjof
+Version:     v1.0.0
+========================================
+[INFO] Switched to mode 1
 ```
 
 ## 🤝 Contributing
 
 Improvements and extensions are welcome!
 
-1. Create a fork of the repository
-2. Create a feature branch (`git checkout -b feature/new-feature`)
-3. Commit changes (`git commit -m 'Add new feature'`)
-4. Push branch (`git push origin feature/new-feature`)
-5. Create a pull request
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/new-mode`)
+3. Implement your new mode following the AbstractMode pattern
+4. Add mode metadata (name, description, author, version)
+5. Test your mode thoroughly
+6. Commit changes (`git commit -m 'Add new lighting mode'`)
+7. Push branch (`git push origin feature/new-mode`)
+8. Create a pull request
+
+### Mode Development Guidelines
+- Use only white LEDs with brightness/pattern variations
+- Implement unique donation effects (2-5 seconds)
+- Follow naming conventions and code style
+- Add comprehensive comments and documentation
+- Test with real hardware before submitting
 
 ## 📄 License
 
@@ -210,23 +264,49 @@ This project is licensed under the MIT License. See [LICENSE](LICENSE) for detai
 
 ## 👥 Authors
 
-- **Munich Maker Lab** - *Initial work* - [munichmakerlab](https://github.com/munichmakerlab)
+- **Friedjof** - *Initial modular architecture* - v1.0.0
 
 ## 🎯 Roadmap
 
-- [ ] Web interface for configuration
-- [ ] Multiple animation modes
-- [ ] MQTT integration
-- [ ] WiFi configuration via captive portal
-- [ ] Statistics on donation frequency
-- [ ] Different sounds for different donation values
+- [ ] Sound integration (DFPlayer Mini support)
+- [ ] Web interface for mode configuration
+- [ ] Custom timing parameters per mode
+- [ ] WiFi configuration portal
+- [ ] MQTT integration for remote monitoring
+- [ ] Statistics and analytics
+- [ ] RGB color mode option
+- [ ] Temperature-based effects
+- [ ] Sound-reactive modes
+
+## 📦 Project Structure
+
+```
+SpendenBox/
+├── src/main.cpp              # Main application entry point
+├── include/Config.h          # Hardware configuration
+├── lib/
+│   ├── AbstractMode/         # Base mode class
+│   ├── Controller/           # Mode management
+│   ├── LightService/         # FastLED wrapper
+│   ├── SensorService/        # TCRT5000 handling
+│   ├── SpeakerService/       # Audio service (mock)
+│   ├── StaticMode/           # Breathing effect mode
+│   ├── WaveMode/             # Wave motion mode
+│   ├── BlinkMode/            # Random blink mode
+│   ├── HalfMode/             # Half switching mode
+│   ├── CenterMode/           # Center expansion mode
+│   └── ChaseMode/            # Chase light mode
+└── platformio.ini            # PlatformIO configuration
+```
 
 ## 📞 Support
 
 For questions or issues:
-- GitHub Issues: [Issues](https://github.com/munichmakerlab/donation-cube/issues)
-- Munich Maker Lab: [Website](https://munichmakerlab.de)
+- Create GitHub Issues for bugs and feature requests
+- Follow coding standards for contributions
+- Include serial monitor output for debugging
 
 ---
 
-*Created with ❤️ for Munich Maker Lab*
+*Professional modular LED controller system for donation boxes*  
+*Created with ❤️ by Friedjof*
