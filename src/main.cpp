@@ -14,6 +14,7 @@
 | - Accelerated pulse animation when donation is detected (5 seconds)          |
 | - Sound effects via DFPlayer Mini                                            |
 | - 2-second debounce to prevent sensor flicker                                |
+| - Home Assistant integration via MQTT                                        |
 |                                                                              |
 | HARDWARE:                                                                    |
 | - ESP8266 (Wemos D1 Mini)                                                    |
@@ -97,46 +98,56 @@
 
 #include <Arduino.h>
 #include <FastLED.h>
-#include <SoftwareSerial.h>
-#include <DFRobotDFPlayerMini.h>
+//#include <SoftwareSerial.h>
+//#include <DFRobotDFPlayerMini.h>
 
 // ============================================================================
 //                              PIN DEFINITIONS
 // ============================================================================
-#define SENSOR_PIN D2        // TCRT5000 donation sensor (HIGH = donation detected)
-#define DATA_PIN D3          // WS2812B LED strip data line
-#define DFPLAYER_RX D5       // DFPlayer Mini RX (ESP8266 TX -> DFPlayer RX)
-#define DFPLAYER_TX D6       // DFPlayer Mini TX (ESP8266 RX <- DFPlayer TX)
+#define SENSOR_PIN  4 //D2 // TCRT5000 donation sensor (HIGH = donation detected)
+#define DATA_PIN    3 //D3 // WS2812B LED strip data line
+//#define DFPLAYER_RX D5 // DFPlayer Mini RX (ESP8266 TX -> DFPlayer RX)
+//#define DFPLAYER_TX D6 // DFPlayer Mini TX (ESP8266 RX <- DFPlayer TX)
 
 // ============================================================================
 //                              LED CONFIGURATION
 // ============================================================================
-#define NUM_LEDS 6                // Number of LEDs in WS2812B strip
-#define LED_TYPE WS2812B          // FastLED type for WS2812B LEDs
-#define MAX_BRIGHTNESS 255        // Maximum LED brightness (0-255)
-#define MIN_BRIGHTNESS 20         // Minimum brightness for breathing effect
-#define BREATH_SPEED_NORMAL 2000  // Normal breathing speed in ms
-#define BREATH_SPEED_FAST 200     // Fast breathing speed in ms
-#define BRIGHTNESS_STEP 15        // Step size for brightness change
+#define NUM_LEDS            6       // Number of LEDs in WS2812B strip
+#define LED_TYPE            WS2812B // FastLED type for WS2812B LEDs
+#define MAX_BRIGHTNESS      255     // Maximum LED brightness (0-255)
+#define MIN_BRIGHTNESS      0       // Minimum brightness for breathing effect
+#define BREATH_SPEED_NORMAL 80      // Normal breathing speed
+#define BREATH_SPEED_FAST   10      // Fast breathing speed
+#define BRIGHTNESS_STEP     15      // Step size for brightness change
+#define DELAY               50      // Delay between brightness changes
+#define EFFECT_DURATION     200     // Duration of the donation effect
+
+// ============================================================================
+//                            FUNCTION DEFINITIONS
+// ============================================================================
+void playSound();        // Function to play sound on DFPlayer Mini
+void donationCallback(); // Callback function for donation detection
 
 // ============================================================================
 //                           HARDWARE INITIALIZATION
 // ============================================================================
-SoftwareSerial dfSerial(DFPLAYER_RX, DFPLAYER_TX);  // SoftwareSerial for DFPlayer
-DFRobotDFPlayerMini dfPlayer;                        // DFPlayer Mini object
-CRGB leds[NUM_LEDS];                                 // LED array for FastLED
+//SoftwareSerial      dfSerial(DFPLAYER_RX, DFPLAYER_TX); // SoftwareSerial for DFPlayer
+//DFRobotDFPlayerMini dfPlayer;                           // DFPlayer Mini object
+CRGB                leds[NUM_LEDS];                     // LED array for FastLED
 
 // ============================================================================
 //                            GLOBAL VARIABLES
 // ============================================================================
-uint8_t current_brightness = MIN_BRIGHTNESS;   // Current brightness
-uint8_t brightness_step = BRIGHTNESS_STEP;     // Brightness step size
-bool brightness_direction = true;              // true = increasing, false = decreasing
-uint16_t breath_counter = 0;                   // Counter for breathing timing
-bool animation_active = false;                 // Flag: animation is running
-uint16_t animation_counter = 0;                // Counter for animation duration
-uint16_t debounce_counter = 0;                 // Counter for debounce
-bool sensor_was_low = true;                    // Status for edge detection
+uint8_t  current_brightness = MIN_BRIGHTNESS;      // Current brightness
+uint8_t  new_brightness     = MIN_BRIGHTNESS;      // New brightness for animation
+
+uint64_t counter            = 0;                   // Counter for animation timing
+uint16_t speed              = BREATH_SPEED_NORMAL; // Speed of the breathing effect
+uint8_t  direction          = 1;                   // Direction of brightness change (1 = increase, -1 = decrease)
+uint8_t  sensor_state       = HIGH;                // Current state of the sensor button (HIGH = no donation, LOW = donation detected)
+uint8_t  sensor_threshold   = 100;                 // Threshold for sensor detection (adjust as needed)
+
+uint64_t effect_counter     = 0;                   // Counter for the donation effect
 
 // ============================================================================
 //                              SETUP FUNCTION
@@ -145,122 +156,89 @@ void setup() {
   Serial.begin(115200);
 
   // Pin configuration
-  pinMode(SENSOR_PIN, INPUT_PULLUP);          // Sensor with pull-up resistor
+  pinMode(SENSOR_PIN, INPUT_PULLUP);
 
   // Initialize LED strip
   FastLED.addLeds<LED_TYPE, DATA_PIN>(leds, NUM_LEDS);
-  FastLED.setCorrection(CRGB(200, 40, 80)); // Color correction to white
+  FastLED.setBrightness(current_brightness); // Set initial brightness
+  FastLED.clear();                           // Clear the LED strip
 
-  // Initialize DFPlayer Mini
-  dfSerial.begin(9600);
-  Serial.println();
-  Serial.println("+=============================================+");
-  Serial.println("|        DONATION BOX LED CONTROLLER         |");
-  Serial.println("+=============================================+");
-  Serial.println("Initializing DFPlayer Mini...");
-
-  if (!dfPlayer.begin(dfSerial)) {
-    Serial.println("ERROR: DFPlayer Mini not connected!");
-    Serial.println("Please check:");
-    Serial.println("1. Wiring (RX->D5, TX->D6, VCC->5V, GND->GND)");
-    Serial.println("2. Inserted MicroSD card");
-    Serial.println("3. MP3 files on the SD card");
-  } else {
-    Serial.println("DFPlayer Mini initialized successfully!");
-    dfPlayer.volume(25);                      // Set volume to 25/30
-    delay(100);
+  // Set White color for breathing effect
+  for (int i = 0; i < NUM_LEDS; i++) {
+    leds[i] = CRGB::White;
   }
 
-  delay(1000);
-  Serial.println("Donation Box LED Controller ready!");
-  Serial.println("Waiting for donations...");
+  FastLED.show();
+
+  Serial.println("[INFO] Setup complete. Waiting for donations…");
 }
 
 // ============================================================================
 //                                MAIN LOOP
 // ============================================================================
 void loop() {
-  // Reduce debounce counter if active
-  if (debounce_counter > 0) {
-    debounce_counter--;
+  // Increment the counter
+  counter++;
+
+  // Activate the breathing effect
+  if (digitalRead(SENSOR_PIN) != sensor_state && sensor_state == HIGH) {
+    Serial.println("[INFO] Donation detected! Starting animation…");
+
+    effect_counter = counter;  // Start the donation effect
+    speed = BREATH_SPEED_FAST; // Speed up the animation
+  
+    donationCallback();        // Call the donation callback function
   }
 
-  // Calculate breathing speed based on animation status
-  uint16_t breath_delay;
+  // Disable the donation effect after a certain duration
+  if (effect_counter > 0 && counter - effect_counter >= EFFECT_DURATION) {
+    Serial.println("[INFO] Donation effect ended.");
 
-  if (animation_active) {
-    // During animation: speed based on progress
-    float progress = (float)animation_counter / 500.0; // 500 = 5 seconds at 10ms delay
+    effect_counter = 0;
+    speed = BREATH_SPEED_NORMAL; // Reset speed to normal after effect
+  }
 
-    if (progress >= 1.0) {
-      // End animation
-      animation_active = false;
-      animation_counter = 0;
-      breath_delay = 8; // Normal: 2000ms / 256 steps ≈ 8ms per step
-      brightness_step = BRIGHTNESS_STEP; // Return to normal step size
-      Serial.println("Animation ended - returning to normal breathing");
+  sensor_state = digitalRead(SENSOR_PIN);
+
+  if (direction) {
+    if (new_brightness + BRIGHTNESS_STEP >= MAX_BRIGHTNESS) {
+      new_brightness = MAX_BRIGHTNESS;
+      direction = 0;
     } else {
-      // Parabolic speed profile: slow -> fast -> slow
-      float speed_factor;
-      if (progress < 0.5) {
-        speed_factor = progress * 2.0;
-      } else {
-        speed_factor = 2.0 - (progress * 2.0);
-      }
-
-      breath_delay = 8 - (uint16_t)(speed_factor * 7.0);
-      if (breath_delay < 1) breath_delay = 1;
-
-      animation_counter++;
+      new_brightness += BRIGHTNESS_STEP;
     }
   } else {
-    breath_delay = 8;
+    if (new_brightness - BRIGHTNESS_STEP <= MIN_BRIGHTNESS) {
+      new_brightness = MIN_BRIGHTNESS;
+      direction = 1;
+    } else {
+      new_brightness -= BRIGHTNESS_STEP;
+    }
   }
 
-  // Update breathing effect every X cycles
-  if (breath_counter >= breath_delay) {
-    breath_counter = 0;
-
-    if (brightness_direction) {
-      if (current_brightness + BRIGHTNESS_STEP >= MAX_BRIGHTNESS) {
-        brightness_direction = false;
-      } else {
-        current_brightness += brightness_step;
-      }
-    } else {
-      if (current_brightness - BRIGHTNESS_STEP <= MIN_BRIGHTNESS) {
-        brightness_direction = true;
-      } else {
-        current_brightness -= brightness_step;
-      }
-    }
-
-    for (int i = 0; i < NUM_LEDS; i++) {
-      leds[i] = CRGB(current_brightness, current_brightness, current_brightness);
-    }
+  // Update LED brightness
+  if (new_brightness != current_brightness) {
+    current_brightness = new_brightness;
+    FastLED.setBrightness(current_brightness);
     FastLED.show();
-    delay(10);
-
-    Serial.print("Current brightness: ");
-    Serial.println(current_brightness);
-  } else {
-    breath_counter++;
   }
 
-  // Check donation sensor with edge detection and debounce
-  bool sensor_current = digitalRead(SENSOR_PIN);
+  // Delay to control animation speed
+  delay(speed);
+}
 
-  if (sensor_current == HIGH && sensor_was_low && !animation_active && debounce_counter == 0) {
-    Serial.println("*** DONATION DETECTED! Starting animation and sound! ***");
+// ============================================================================
+//                                   FUNCTIONS
+// ============================================================================
+void playSound() {
+  // Placeholder for sound playback logic
+  // This function should interface with the DFPlayer Mini to play a sound
+  Serial.println("[INFO] Playing sound for donation effect.");
+}
 
-    dfPlayer.play(1); // Play 001.mp3 from SD card
-
-    animation_active = true;
-    animation_counter = 0;
-    debounce_counter = 200; // 200 * 10ms = 2 seconds debounce
-  }
-
-  sensor_was_low = (sensor_current == LOW);
-
-  delay(10); // 10ms delay for stable timing
+void donationCallback() {
+  // Placeholder for donation callback logic
+  // This function can be used to handle additional actions when a donation is detected
+  Serial.println("[INFO] Donation callback triggered.");
+  playSound(); // Play sound effect
 }

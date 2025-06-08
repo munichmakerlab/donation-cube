@@ -2,7 +2,7 @@
 # SpendenBox - FastLED Controller
 
 # Umgebung aus platformio.ini
-ENV = wemos_d1_mini
+ENV = esp32c3 #wemos_d1_mini
 
 # PlatformIO Befehle
 PIO = ~/.platformio/penv/bin/platformio
