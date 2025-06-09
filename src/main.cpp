@@ -131,12 +131,6 @@ void loop() {
   }
 #endif
 
-  // Check for donation detection (before controller loop)
-  if (sensorService->risingEdge()) {
-    donationJustDetected = true;
-    lastDonationTime = millis();
-  }
-  
   // Run controller logic
   controller->loop();
   

@@ -3,26 +3,44 @@
 void SensorService::setup() {
     pinMode(sensorPin, INPUT_PULLUP);
     sensorState = digitalRead(sensorPin);
+    lastSensorState = sensorState;
+    risingEdgeDetected = false;
+    fallingEdgeDetected = false;
     Serial.println("[INFO] SensorService initialized");
 }
 
 void SensorService::loop() {
-    // Update sensor state - this should be called in main loop
-    // to continuously monitor sensor changes
+    // Update sensor state and detect edges
+    lastSensorState = sensorState;
+    sensorState = digitalRead(sensorPin);
+    
+    // Detect rising edge (HIGH to LOW for TCRT5000 - donation detected)
+    if (lastSensorState == HIGH && sensorState == LOW) {
+        risingEdgeDetected = true;
+        Serial.println("[SENSOR] Rising edge detected - donation placed");
+    }
+    
+    // Detect falling edge (LOW to HIGH for TCRT5000 - donation removed)
+    if (lastSensorState == LOW && sensorState == HIGH) {
+        fallingEdgeDetected = true;
+        Serial.println("[SENSOR] Falling edge detected - donation removed");
+    }
 }
 
 bool SensorService::risingEdge() {
-    uint8_t newState = digitalRead(sensorPin);
-    bool edge = (sensorState == HIGH && newState == LOW); // Donation detected when going from HIGH to LOW
-    sensorState = newState;
-    return edge;
+    if (risingEdgeDetected) {
+        risingEdgeDetected = false; // Reset flag after reading
+        return true;
+    }
+    return false;
 }
 
 bool SensorService::fallingEdge() {
-    uint8_t newState = digitalRead(sensorPin);
-    bool edge = (sensorState == LOW && newState == HIGH); // Donation ended when going from LOW to HIGH
-    sensorState = newState;
-    return edge;
+    if (fallingEdgeDetected) {
+        fallingEdgeDetected = false; // Reset flag after reading
+        return true;
+    }
+    return false;
 }
 
 bool SensorService::isActive() {
