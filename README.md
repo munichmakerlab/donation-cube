@@ -26,18 +26,7 @@ This project implements a modular controller system for donation boxes with:
 ## 🏗️ Architecture
 
 ### Modular Design
-```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Controller    │───▶│   Services      │◀───│   LED Modes     │
-│                 │    │                 │    │                 │
-│ • Mode Manager  │    │ • LightService  │    │ • StaticMode    │
-│ • Sensor Logic  │    │ • SensorService │    │ • WaveMode      │
-│ • Auto Switch   │    │ • SpeakerService│    │ • BlinkMode     │
-└─────────────────┘    └─────────────────┘    │ • HalfMode      │
-                                              │ • CenterMode    │
-                                              │ • ChaseMode     │
-                                              └─────────────────┘
-```
+![Modular Architecture](media/architecture.png)
 
 ### Service Layer
 - **[LightService](lib/LightService/)**: FastLED wrapper with CRGB color management
