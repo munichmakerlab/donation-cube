@@ -313,7 +313,7 @@ def setup_credentials():
     update_gitignore()
     
     # Print summary
-    from .ui import print_summary
+    from scripts.setup.ui import print_summary
     print_summary(wifi_ssid, mqtt_server, mqtt_port, mqtt_user)
     
     return True
