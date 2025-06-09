@@ -22,22 +22,25 @@ Sensor:    VCC→3.3V, GND→GND, OUT→GPIO2
 ## 🚀 Installation & Quick Start
 
 ### 💾 One-Line Installation (Recommended)
-Clone and setup everything automatically:
+Clone the repository and get ready to start:
 
 ```bash
 # Option 1: Using curl
-curl -sSL https://raw.githubusercontent.com/munichmakerlab/donation-cube/main/install.sh | bash
-
+curl -sSL https://raw.githubusercontent.com/munichmakerlab/donation-cube/main/scripts/install.sh | bash
+```
+```bash
 # Option 2: Using wget  
-wget -qO- https://raw.githubusercontent.com/munichmakerlab/donation-cube/main/install.sh | bash
+wget -qO- https://raw.githubusercontent.com/munichmakerlab/donation-cube/main/scripts/install.sh | bash
 ```
 
 Or download and run manually:
 ```bash
-wget https://raw.githubusercontent.com/munichmakerlab/donation-cube/main/install.sh
+wget https://raw.githubusercontent.com/munichmakerlab/donation-cube/main/scripts/install.sh
 chmod +x install.sh
 ./install.sh
 ```
+
+💡 **Note:** The one-line installation clones the repository and provides setup instructions. For the full interactive setup wizard, run `python3 scripts/setup.py` in the project directory.
 
 ### ⚡ Automated Setup (If already cloned)
 ```bash
