@@ -25,10 +25,10 @@ Sensor:    VCC→3.3V, GND→GND, OUT→GPIO2
 Clone the repository and get ready to start:
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/munichmakerlab/donation-cube/main/scripts/install.sh | bash
+curl -sSL https://raw.githubusercontent.com/munichmakerlab/donation-cube/main/scripts/install.sh > install.sh && chmod +x install.sh && ./install.sh
 ```
 ```bash
-wget -qO- https://raw.githubusercontent.com/munichmakerlab/donation-cube/main/scripts/install.sh | bash
+wget -qO- https://raw.githubusercontent.com/munichmakerlab/donation-cube/main/scripts/install.sh && chmod +x install.sh && ./install.sh
 ```
 
 Or download and run manually:
