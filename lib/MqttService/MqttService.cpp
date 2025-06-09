@@ -3,6 +3,7 @@
 MqttService::MqttService(const char* ssid, const char* password, 
                          const char* server, int port,
                          const char* clientId, const char* user, const char* pass)
+#if ENABLE_WIFI
     : wifiSSID(ssid), wifiPassword(password),
       mqttServer(server), mqttPort(port), mqttClientId(clientId),
       mqttUser(user), mqttPassword(pass),
@@ -19,9 +20,16 @@ MqttService::MqttService(const char* ssid, const char* password,
     
     // Configure MQTT client
     mqttClient.setServer(mqttServer, mqttPort);
+#else
+    {
+    // Dummy mode - WiFi/MQTT disabled
+    Serial.println("[MQTT] WiFi/MQTT disabled - running in standalone mode");
+    dummyConnected = false;
+#endif
 }
 
 void MqttService::setup() {
+#if ENABLE_WIFI
     Serial.println("[MQTT] MqttService setup started");
     
     // Initialize WiFi
@@ -39,9 +47,14 @@ void MqttService::setup() {
     }
     
     Serial.println("[MQTT] MqttService setup complete");
+#else
+    Serial.println("[MQTT] Standalone mode - no network features enabled");
+    dummyConnected = true; // Simulate successful "connection"
+#endif
 }
 
 void MqttService::loop() {
+#if ENABLE_WIFI
     unsigned long currentTime = millis();
     
     // Maintain WiFi connection
@@ -77,9 +90,14 @@ void MqttService::loop() {
             lastHeartbeat = currentTime;
         }
     }
+#else
+    // Dummy mode - no actual network operations
+    // Just maintain the "connected" state for compatibility
+#endif
 }
 
 void MqttService::donation(const String& mode, int amount) {
+#if ENABLE_WIFI
     if (!mqttConnected) {
         Serial.println("[MQTT] Cannot send donation - not connected");
         return;
@@ -97,9 +115,13 @@ void MqttService::donation(const String& mode, int amount) {
     } else {
         Serial.println("[MQTT] Failed to publish donation");
     }
+#else
+    Serial.println("[MQTT] Standalone mode - donation logged locally: " + mode);
+#endif
 }
 
 void MqttService::logInfo(const String& message) {
+#if ENABLE_WIFI
     if (!mqttConnected) {
         return; // Fail silently for logs
     }
@@ -111,9 +133,14 @@ void MqttService::logInfo(const String& message) {
     payload += "}";
     
     mqttClient.publish(logTopic.c_str(), payload.c_str());
+#else
+    // In standalone mode, just log to serial
+    Serial.println("[INFO] " + message);
+#endif
 }
 
 void MqttService::logWarning(const String& message) {
+#if ENABLE_WIFI
     if (!mqttConnected) {
         return;
     }
@@ -126,9 +153,13 @@ void MqttService::logWarning(const String& message) {
     
     mqttClient.publish(logTopic.c_str(), payload.c_str());
     Serial.println("[MQTT] Warning logged: " + message);
+#else
+    Serial.println("[WARNING] " + message);
+#endif
 }
 
 void MqttService::logError(const String& message) {
+#if ENABLE_WIFI
     if (!mqttConnected) {
         return;
     }
@@ -141,9 +172,13 @@ void MqttService::logError(const String& message) {
     
     mqttClient.publish(logTopic.c_str(), payload.c_str());
     Serial.println("[MQTT] Error logged: " + message);
+#else
+    Serial.println("[ERROR] " + message);
+#endif
 }
 
 void MqttService::modeChanged(const String& fromMode, const String& toMode) {
+#if ENABLE_WIFI
     if (!mqttConnected) {
         Serial.println("[MQTT] Cannot send mode change - not connected");
         return;
@@ -161,9 +196,13 @@ void MqttService::modeChanged(const String& fromMode, const String& toMode) {
     } else {
         Serial.println("[MQTT] Failed to publish mode change");
     }
+#else
+    Serial.println("[MQTT] Standalone mode - mode changed: " + fromMode + " -> " + toMode);
+#endif
 }
 
 void MqttService::systemStatus(const String& status) {
+#if ENABLE_WIFI
     if (!mqttConnected) {
         return;
     }
@@ -178,17 +217,29 @@ void MqttService::systemStatus(const String& status) {
     payload += "}";
     
     mqttClient.publish(statusTopic.c_str(), payload.c_str());
+#else
+    Serial.println("[MQTT] Standalone mode - system status: " + status);
+#endif
 }
 
 bool MqttService::isConnected() const {
+#if ENABLE_WIFI
     return mqttConnected;
+#else
+    return dummyConnected; // Always "connected" in standalone mode
+#endif
 }
 
 bool MqttService::isWiFiConnected() const {
+#if ENABLE_WIFI
     return wifiConnected;
+#else
+    return false; // No WiFi in standalone mode
+#endif
 }
 
 String MqttService::getConnectionStatus() const {
+#if ENABLE_WIFI
     if (!wifiConnected) {
         return "WiFi disconnected";
     } else if (!mqttConnected) {
@@ -196,17 +247,25 @@ String MqttService::getConnectionStatus() const {
     } else {
         return "Fully connected";
     }
+#else
+    return "Standalone mode (no network)";
+#endif
 }
 
 void MqttService::setBaseTopic(const String& topic) {
+#if ENABLE_WIFI
     baseTopic = topic;
     donationTopic = baseTopic + "/donations";
     logTopic = baseTopic + "/logs";
     statusTopic = baseTopic + "/status";
     modeTopic = baseTopic + "/mode";
+#else
+    // Do nothing in standalone mode
+#endif
 }
 
-// Private methods
+#if ENABLE_WIFI
+// Private methods (only available when WiFi is enabled)
 
 void MqttService::connectWiFi() {
     if (WiFi.status() == WL_CONNECTED) {
@@ -317,3 +376,4 @@ String MqttService::formatTimestamp() {
     
     return timestamp;
 }
+#endif
