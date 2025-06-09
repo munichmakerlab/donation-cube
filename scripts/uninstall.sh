@@ -3,8 +3,6 @@
 # DonationBox Uninstallation Script
 # Removes project and PlatformIO installation
 
-set -e  # Exit on any error
-
 echo "🗑️  DonationBox Uninstaller"
 echo "==========================="
 
@@ -23,6 +21,23 @@ fi
 # Remove PlatformIO installation
 echo "🔧 Removing PlatformIO..."
 
+# Try to remove PlatformIO via pip (handle externally-managed-environment)
+if command -v pio &> /dev/null; then
+    echo "   Removing PlatformIO installation..."
+    
+    # Try different removal methods
+    if pip uninstall -y platformio 2>/dev/null; then
+        echo "✅ Removed PlatformIO via pip"
+    elif pip uninstall -y platformio --break-system-packages 2>/dev/null; then
+        echo "✅ Removed PlatformIO via pip (system override)"
+    elif command -v pipx &> /dev/null && pipx uninstall platformio 2>/dev/null; then
+        echo "✅ Removed PlatformIO via pipx"
+    else
+        echo "⚠️  Could not remove PlatformIO via package manager"
+        echo "   Will remove files manually..."
+    fi
+fi
+
 # Remove PlatformIO home directory
 if [ -d "$HOME/.platformio" ]; then
     echo "   Removing PlatformIO data directory..."
@@ -37,7 +52,7 @@ if [ -d "$HOME/.cache/platformio" ]; then
     echo "✅ Removed PlatformIO cache"
 fi
 
-# Remove local PlatformIO binaries (if installed locally)
+# Remove local PlatformIO binaries
 LOCAL_PLATFORMIO_PATHS=(
     "$HOME/.local/bin/pio"
     "$HOME/.local/bin/platformio"
@@ -53,10 +68,18 @@ for path in "${LOCAL_PLATFORMIO_PATHS[@]}"; do
     fi
 done
 
-# Clean up any remaining PlatformIO packages
-if command -v pip &> /dev/null; then
-    echo "   Checking for remaining PlatformIO packages..."
-    pip list | grep -i platformio | awk '{print $1}' | xargs -r pip uninstall -y 2>/dev/null || true
+# Remove Python packages manually if pip failed
+if [ -d "$HOME/.local/lib/python3"*/site-packages/platformio* ]; then
+    echo "   Removing PlatformIO Python packages..."
+    rm -rf "$HOME/.local/lib/python3"*/site-packages/platformio*
+    echo "✅ Removed PlatformIO packages"
+fi
+
+# Check if pipx was used
+if [ -d "$HOME/.local/share/pipx/venvs/platformio" ]; then
+    echo "   Removing pipx PlatformIO environment..."
+    rm -rf "$HOME/.local/share/pipx/venvs/platformio"
+    echo "✅ Removed pipx PlatformIO"
 fi
 
 echo ""
@@ -64,13 +87,20 @@ echo "🎉 Uninstallation complete!"
 echo ""
 echo "📋 What was removed:"
 echo "   ✓ DonationBox project directory"
-echo "   ✓ PlatformIO installation"
-echo "   ✓ PlatformIO data and cache"
+echo "   ✓ PlatformIO data and cache (~/.platformio)"
+echo "   ✓ PlatformIO binaries and packages"
 echo "   ✓ All related configuration files"
 echo ""
-echo "💡 If you installed PlatformIO system-wide with package manager,"
-echo "   you may need to remove it manually with:"
-echo "   • apt remove platformio (Ubuntu/Debian)"
-echo "   • brew uninstall platformio (macOS)"
-echo "   • pacman -R platformio (Arch Linux)"
+
+# Check if PlatformIO is still accessible
+if command -v pio &> /dev/null; then
+    echo "⚠️  PlatformIO command still accessible"
+    echo "💡 If installed system-wide, remove manually with:"
+    echo "   • sudo apt remove python3-platformio (Ubuntu/Debian)"
+    echo "   • brew uninstall platformio (macOS)"
+    echo "   • sudo pacman -R platformio (Arch Linux)"
+else
+    echo "✅ PlatformIO completely removed"
+fi
+
 echo ""
