@@ -165,7 +165,7 @@ def select_build_targets(environments):
             choice = input(f"\n{Colors.BOLD}Choose targets [0-{len(environments) + 1}]: {Colors.END}").strip()
         except EOFError:
             colored_print("\n⚠️  EOF detected - building all targets", Colors.YELLOW)
-            return [env['name'] for env in environments]
+            return environments  # Return environment dictionaries, not just names
         except KeyboardInterrupt:
             colored_print("\n👋 Setup cancelled by user", Colors.YELLOW)
             sys.exit(0)
