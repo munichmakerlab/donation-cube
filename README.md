@@ -16,12 +16,12 @@ This project implements a modular controller system for donation boxes with:
 
 | Mode | Name | Author | Description | Donation Effect |
 |------|------|--------|-------------|-----------------|
-| **1** | Static Breathing | Friedjof v1.0.0 | Gentle breathing effect with white LEDs | Faster breathing |
-| **2** | Wave Motion | Friedjof v1.0.0 | Wave effect moving through LED strip | Rapid wave motion |
-| **3** | Random Blink | Friedjof v1.0.0 | Random blinking pattern with white LEDs | Intense blinking |
-| **4** | Half Switch | Friedjof v1.0.0 | Alternating first and second half illumination | Fast switching |
-| **5** | Center Expansion | Friedjof v1.0.0 | Light expanding from center outwards | Rapid expansion |
-| **6** | Chase Light | Friedjof v1.0.0 | Moving light with trailing tail effect | High-speed chase |
+| **1** | [Static Breathing](lib/StaticMode/) | Friedjof v1.0.0 | Gentle breathing effect with white LEDs | Faster breathing |
+| **2** | [Wave Motion](lib/WaveMode/) | Friedjof v1.0.0 | Wave effect moving through LED strip | Rapid wave motion |
+| **3** | [Random Blink](lib/BlinkMode/) | Friedjof v1.0.0 | Random blinking pattern with white LEDs | Intense blinking |
+| **4** | [Half Switch](lib/HalfMode/) | Friedjof v1.0.0 | Alternating first and second half illumination | Fast switching |
+| **5** | [Center Expansion](lib/CenterMode/) | Friedjof v1.0.0 | Light expanding from center outwards | Rapid expansion |
+| **6** | [Chase Light](lib/ChaseMode/) | Friedjof v1.0.0 | Moving light with trailing tail effect | High-speed chase |
 
 ## 🏗️ Architecture
 
@@ -543,28 +543,6 @@ This project is licensed under the MIT License. See [LICENSE](LICENSE) for detai
 | **LightService** | FastLED wrapper for WS2812B LED strip control | [📖 LightService](lib/LightService/) |
 | **SensorService** | TCRT5000 donation detection with edge detection | [📖 SensorService](lib/SensorService/) |
 | **SpeakerService** | Audio service (mock implementation for future integration) | [📖 SpeakerService](lib/SpeakerService/) |
-
-### LED Animation Modes
-| Mode | Effect Description | Documentation |
-|------|-------------------|---------------|
-| **StaticMode** | Gentle breathing effect with white LEDs | [📖 StaticMode](lib/StaticMode/) |
-| **WaveMode** | Wave motion effect moving through LED strip | [📖 WaveMode](lib/WaveMode/) |
-| **BlinkMode** | Random blinking pattern with white LEDs | [📖 BlinkMode](lib/BlinkMode/) |
-| **HalfMode** | Alternating first and second half illumination | [📖 HalfMode](lib/HalfMode/) |
-| **CenterMode** | Light expanding from center outwards | [📖 CenterMode](lib/CenterMode/) |
-| **ChaseMode** | Moving light with trailing tail effect | [📖 ChaseMode](lib/ChaseMode/) |
-
-### Quick Library Reference
-
-**For developers extending the system:**
-- Start with [AbstractMode](lib/AbstractMode/) to understand the base class
-- Use [LightService](lib/LightService/) for LED control reference
-- Check [Controller](lib/Controller/) for mode registration
-
-**For mode development:**
-- Study existing mode implementations: [StaticMode](lib/StaticMode/), [WaveMode](lib/WaveMode/), [BlinkMode](lib/BlinkMode/)
-- Reference [SensorService](lib/SensorService/) for donation detection
-- See [SpeakerService](lib/SpeakerService/) for audio integration
 
 ## 📦 Project Structure
 
