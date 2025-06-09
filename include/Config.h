@@ -33,3 +33,43 @@
 #define BRIGHTNESS_STEP     15      // Step size for brightness change
 #define DELAY               50      // Delay between brightness changes
 #define EFFECT_DURATION     200     // Duration of the donation effect
+
+// ============================================================================
+//                             WIFI CONFIGURATION
+// ============================================================================
+// Optional: Include user-specific credentials
+// Copy credentials.h.example to credentials.h and fill in your details
+// Or run the setup script: python3 setup.py
+#ifdef __has_include
+  #if __has_include("credentials.h")
+    #include "credentials.h"
+  #endif
+#endif
+
+// Connection timeouts
+#define WIFI_TIMEOUT        10000   // WiFi connection timeout in milliseconds
+#define WIFI_RETRY_INTERVAL 30000   // WiFi retry interval in milliseconds
+
+// ============================================================================
+//                             MQTT CONFIGURATION
+// ============================================================================
+
+// MQTT Client configuration
+#define MQTT_CLIENT_ID      "donation-box"      // Base client ID (will be made unique)
+#define MQTT_BASE_TOPIC     "donation-box"      // Base topic for all messages
+#define MQTT_QOS            0                   // Quality of Service level
+#define MQTT_RETAIN         false               // Retain messages flag
+
+// MQTT Connection settings
+#define MQTT_KEEPALIVE      60                  // Keep-alive interval in seconds
+#define MQTT_CLEAN_SESSION  true                // Clean session flag
+#define MQTT_TIMEOUT        5000                // MQTT connection timeout in milliseconds
+
+// ============================================================================
+//                          FEATURE TOGGLES
+// ============================================================================
+// Enable/disable optional features
+#define ENABLE_MQTT         true                // Enable MQTT connectivity
+#define ENABLE_SERIAL_DEBUG true                // Enable Serial debug output
+#define ENABLE_HEARTBEAT    true                // Enable MQTT heartbeat messages
+#define ENABLE_AUTO_RECONNECT true              // Enable automatic WiFi/MQTT reconnection
