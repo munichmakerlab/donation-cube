@@ -9,6 +9,8 @@ import sys
 import subprocess
 import shutil
 import configparser
+import urllib.request
+import urllib.error
 from pathlib import Path
 from ui import colored_print, Colors, show_progress_bar
 
@@ -18,43 +20,74 @@ def check_platformio_installed():
     if shutil.which('pio'):
         return True, None
     
-    # Check local installation in scripts directory
-    script_dir = Path(__file__).parent.parent
-    local_pio = script_dir / '.venv' / 'bin' / 'pio'
-    if local_pio.exists():
-        return True, str(local_pio)
+    # Check official PlatformIO installation locations
+    home_dir = Path.home()
+    possible_paths = [
+        home_dir / ".platformio" / "penv" / "bin" / "pio",
+        home_dir / ".platformio" / "penv" / "Scripts" / "pio.exe",  # Windows
+        # Legacy local installation in scripts directory
+        Path(__file__).parent.parent / '.venv' / 'bin' / 'pio'
+    ]
+    
+    for pio_path in possible_paths:
+        if pio_path.exists():
+            return True, str(pio_path)
     
     return False, None
 
 def install_platformio_locally():
-    """Install PlatformIO locally in scripts directory"""
-    script_dir = Path(__file__).parent.parent
-    venv_dir = script_dir / '.venv'
-    
-    colored_print("📦 Installing PlatformIO locally...", Colors.BLUE, bold=True)
+    """Install PlatformIO using the official get-platformio.py script"""
+    colored_print("📦 Installing PlatformIO using official installer...", Colors.BLUE, bold=True)
     
     try:
-        # Create virtual environment
-        colored_print("   Creating virtual environment...", Colors.BLUE)
-        subprocess.run([sys.executable, '-m', 'venv', str(venv_dir)], 
-                      check=True, capture_output=True)
+        import urllib.request
+        import tempfile
         
-        # Install PlatformIO
-        colored_print("   Installing PlatformIO...", Colors.BLUE)
-        pip_path = venv_dir / 'bin' / 'pip'
-        subprocess.run([str(pip_path), 'install', 'platformio'], 
-                      check=True, capture_output=True)
+        # Download get-platformio.py script
+        colored_print("   Downloading PlatformIO installer...", Colors.BLUE)
+        get_pio_url = "https://raw.githubusercontent.com/platformio/platformio-core-installer/master/get-platformio.py"
         
-        pio_path = venv_dir / 'bin' / 'pio'
-        colored_print(f"✅ PlatformIO installed locally: {pio_path}", Colors.GREEN)
-        return str(pio_path)
+        with tempfile.NamedTemporaryFile(mode='w+', suffix='.py', delete=False) as tmp_file:
+            urllib.request.urlretrieve(get_pio_url, tmp_file.name)
+            installer_path = tmp_file.name
         
+        # Run the installer
+        colored_print("   Running PlatformIO installer...", Colors.BLUE)
+        result = subprocess.run([sys.executable, installer_path], 
+                              capture_output=True, text=True, check=True)
+        
+        # Clean up temporary file
+        os.unlink(installer_path)
+        
+        # Try to find the installed PlatformIO
+        home_dir = Path.home()
+        possible_paths = [
+            home_dir / ".platformio" / "penv" / "bin" / "pio",
+            home_dir / ".platformio" / "penv" / "Scripts" / "pio.exe",  # Windows
+            "/usr/local/bin/pio",
+            "/usr/bin/pio"
+        ]
+        
+        for pio_path in possible_paths:
+            if pio_path.exists():
+                colored_print(f"✅ PlatformIO installed successfully: {pio_path}", Colors.GREEN)
+                return str(pio_path)
+        
+        # If not found in common locations, try global command
+        colored_print("✅ PlatformIO installed successfully (global)", Colors.GREEN)
+        return "pio"
+        
+    except urllib.error.URLError as e:
+        colored_print(f"❌ Failed to download installer: {e}", Colors.RED)
+        colored_print("   Please check your internet connection", Colors.YELLOW)
+        return None
     except subprocess.CalledProcessError as e:
-        colored_print(f"❌ Failed to install PlatformIO: {e}", Colors.RED)
-        colored_print("   Please install manually: pip install platformio", Colors.YELLOW)
+        colored_print(f"❌ PlatformIO installation failed: {e}", Colors.RED)
+        if e.stderr:
+            colored_print(f"   Error details: {e.stderr}", Colors.RED)
         return None
     except Exception as e:
-        colored_print(f"❌ Unexpected error: {e}", Colors.RED)
+        colored_print(f"❌ Unexpected error during installation: {e}", Colors.RED)
         return None
 
 def setup_platformio_environment():
@@ -72,8 +105,21 @@ def setup_platformio_environment():
             pio_path = 'pio'
         return pio_path
     
-    # Not installed, ask user what to do
+    # Not installed, check if we're in non-interactive environment
     colored_print("⚠️  PlatformIO not found!", Colors.YELLOW, bold=True)
+    
+    # Check if we're in a non-interactive terminal
+    if not sys.stdin.isatty() or not sys.stdout.isatty():
+        colored_print("⚠️  Non-interactive environment detected", Colors.YELLOW)
+        colored_print("   Attempting automatic PlatformIO installation...", Colors.BLUE)
+        pio_path = install_platformio_locally()
+        if pio_path:
+            colored_print("✅ PlatformIO installed successfully", Colors.GREEN)
+            return pio_path
+        else:
+            colored_print("❌ Automatic installation failed", Colors.RED)
+            colored_print("   Please install PlatformIO manually: pip install platformio", Colors.YELLOW)
+            return None
     colored_print("   PlatformIO is required to build and flash the firmware", Colors.YELLOW)
     print()
     
@@ -86,9 +132,15 @@ def setup_platformio_environment():
         try:
             choice = input(f"\n{Colors.BOLD}Choose option [1/2/q]: {Colors.END}").strip().lower()
         except EOFError:
-            colored_print("\n⚠️  EOF detected - skipping PlatformIO installation", Colors.YELLOW)
-            colored_print("   Please install PlatformIO manually: pip install platformio", Colors.YELLOW)
-            return None
+            colored_print("\n⚠️  EOF detected - attempting automatic PlatformIO installation", Colors.YELLOW)
+            pio_path = install_platformio_locally()
+            if pio_path:
+                colored_print("✅ PlatformIO installed successfully", Colors.GREEN)
+                return pio_path
+            else:
+                colored_print("❌ Automatic installation failed", Colors.RED)
+                colored_print("   Please install PlatformIO manually: pip install platformio", Colors.YELLOW)
+                return None
         except KeyboardInterrupt:
             colored_print("\n👋 Setup cancelled by user", Colors.YELLOW)
             sys.exit(0)
