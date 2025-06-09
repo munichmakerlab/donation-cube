@@ -15,6 +15,47 @@ ChaseMode creates a dynamic chase light effect with a bright moving LED followed
 - **Pattern**: Bright LED with trailing fade pattern following behind
 - **Color**: Pure white with gradient brightness trail
 
+## Visual Effect Description
+
+### Normal Chase Pattern (30 LEDs example)
+```
+Chase moving clockwise with trail:
+
+Frame 1: ●◐◑○○○○○○○○○○○○○○○○○○○○○○○○○○○○
+Frame 2: ○●◐◑○○○○○○○○○○○○○○○○○○○○○○○○○○○
+Frame 3: ○○●◐◑○○○○○○○○○○○○○○○○○○○○○○○○○○
+Frame 4: ○○○●◐◑○○○○○○○○○○○○○○○○○○○○○○○○○
+Frame 5: ○○○○●◐◑○○○○○○○○○○○○○○○○○○○○○○○○
+
+● = Lead light (full brightness)
+◐ = Trail 1 (75% brightness) 
+◑ = Trail 2 (50% brightness)
+○ = Trail 3+ or off (25% or off)
+```
+
+### Donation High-Speed Chase
+```
+Rapid chase motion:
+Frame 1: ●●●●○○○○○○○○○○○○○○○○○○○○○○○○○○
+Frame 2: ○○●●●●○○○○○○○○○○○○○○○○○○○○○○○○
+Frame 3: ○○○○●●●●○○○○○○○○○○○○○○○○○○○○○○
+Frame 4: ○○○○○○●●●●○○○○○○○○○○○○○○○○○○○○
+
+Much faster movement with multiple bright LEDs
+Intense chase effect with longer bright section
+```
+
+### Trail Fade Gradient
+```
+Brightness levels in trail:
+Position 0 (lead):    ●●● (255 - Full brightness)
+Position -1:          ◐◐◐ (205 - 80% brightness)
+Position -2:          ◑◑◑ (155 - 60% brightness)
+Position -3:          ◔◔◔ (105 - 40% brightness)
+Position -4:          ○○○ (55  - 20% brightness)
+Position -5+:         ○○○ (0   - Off)
+```
+
 ## Public Functions
 
 ### Constructor
@@ -99,47 +140,6 @@ controller->addMode(chaseMode);
 // - Accelerate chase during donations
 // - Return to normal speed after effect
 // - Deactivate after donation effect completes
-```
-
-## Visual Effect Description
-
-### Normal Chase Pattern (30 LEDs example)
-```
-Chase moving clockwise with trail:
-
-Frame 1: ●◐◑○○○○○○○○○○○○○○○○○○○○○○○○○○○○
-Frame 2: ○●◐◑○○○○○○○○○○○○○○○○○○○○○○○○○○○
-Frame 3: ○○●◐◑○○○○○○○○○○○○○○○○○○○○○○○○○○
-Frame 4: ○○○●◐◑○○○○○○○○○○○○○○○○○○○○○○○○○
-Frame 5: ○○○○●◐◑○○○○○○○○○○○○○○○○○○○○○○○○
-
-● = Lead light (full brightness)
-◐ = Trail 1 (75% brightness) 
-◑ = Trail 2 (50% brightness)
-○ = Trail 3+ or off (25% or off)
-```
-
-### Donation High-Speed Chase
-```
-Rapid chase motion:
-Frame 1: ●●●●○○○○○○○○○○○○○○○○○○○○○○○○○○
-Frame 2: ○○●●●●○○○○○○○○○○○○○○○○○○○○○○○○
-Frame 3: ○○○○●●●●○○○○○○○○○○○○○○○○○○○○○○
-Frame 4: ○○○○○○●●●●○○○○○○○○○○○○○○○○○○○○
-
-Much faster movement with multiple bright LEDs
-Intense chase effect with longer bright section
-```
-
-### Trail Fade Gradient
-```
-Brightness levels in trail:
-Position 0 (lead):    ●●● (255 - Full brightness)
-Position -1:          ◐◐◐ (205 - 80% brightness)
-Position -2:          ◑◑◑ (155 - 60% brightness)
-Position -3:          ◔◔◔ (105 - 40% brightness)
-Position -4:          ○○○ (55  - 20% brightness)
-Position -5+:         ○○○ (0   - Off)
 ```
 
 ## Technical Implementation

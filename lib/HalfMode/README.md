@@ -15,6 +15,33 @@ HalfMode creates an alternating illumination pattern between the first and secon
 - **Pattern**: Clean division of LED strip into two zones
 - **Color**: Pure white with full brightness contrast
 
+## Visual Effect Description
+
+### Normal Half Switching (30 LEDs example)
+```
+State A - First Half ON:
+LEDs 0-14:  ●●●●●●●●●●●●●●●
+LEDs 15-29: ○○○○○○○○○○○○○○○
+
+State B - Second Half ON:
+LEDs 0-14:  ○○○○○○○○○○○○○○○
+LEDs 15-29: ●●●●●●●●●●●●●●●
+
+● = LEDs ON (full brightness)
+○ = LEDs OFF
+```
+
+### Donation Fast Switching
+```
+Rapid alternation:
+Time 0.0s: ●●●●●●●●●●●●●●●○○○○○○○○○○○○○○○
+Time 0.1s: ○○○○○○○○○○○○○○○●●●●●●●●●●●●●●●
+Time 0.2s: ●●●●●●●●●●●●●●●○○○○○○○○○○○○○○○
+Time 0.3s: ○○○○○○○○○○○○○○○●●●●●●●●●●●●●●●
+
+Much faster switching creates strobe-like effect
+```
+
 ## Public Functions
 
 ### Constructor
@@ -93,33 +120,6 @@ controller->addMode(halfMode);
 // - Accelerate switching during donations
 // - Return to normal speed after effect
 // - Deactivate after donation effect completes
-```
-
-## Visual Effect Description
-
-### Normal Half Switching (30 LEDs example)
-```
-State A - First Half ON:
-LEDs 0-14:  ●●●●●●●●●●●●●●●
-LEDs 15-29: ○○○○○○○○○○○○○○○
-
-State B - Second Half ON:
-LEDs 0-14:  ○○○○○○○○○○○○○○○
-LEDs 15-29: ●●●●●●●●●●●●●●●
-
-● = LEDs ON (full brightness)
-○ = LEDs OFF
-```
-
-### Donation Fast Switching
-```
-Rapid alternation:
-Time 0.0s: ●●●●●●●●●●●●●●●○○○○○○○○○○○○○○○
-Time 0.1s: ○○○○○○○○○○○○○○○●●●●●●●●●●●●●●●
-Time 0.2s: ●●●●●●●●●●●●●●●○○○○○○○○○○○○○○○
-Time 0.3s: ○○○○○○○○○○○○○○○●●●●●●●●●●●●●●●
-
-Much faster switching creates strobe-like effect
 ```
 
 ## Animation Timing

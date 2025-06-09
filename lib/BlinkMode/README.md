@@ -15,6 +15,33 @@ BlinkMode creates a random blinking pattern with white LEDs, generating unpredic
 - **Pattern**: Unpredictable LED activation with random selection
 - **Color**: Pure white with random brightness variations
 
+## Visual Effect Description
+
+### Normal Random Blinking
+```
+LED Strip over time:
+Frame 1: ○ ● ○ ○ ○ ○ ● ○ ○ ○
+Frame 2: ○ ○ ○ ● ○ ○ ○ ○ ○ ●
+Frame 3: ● ○ ○ ○ ○ ● ○ ○ ○ ○
+Frame 4: ○ ○ ● ○ ○ ○ ○ ● ○ ○
+
+● = LED ON (randomly selected)
+○ = LED OFF
+Pattern: Unpredictable, organic
+```
+
+### Donation Intensive Blinking
+```
+LED Strip during donation:
+Frame 1: ● ● ○ ● ● ○ ● ○ ● ●
+Frame 2: ○ ● ● ○ ● ● ● ● ○ ●
+Frame 3: ● ○ ● ● ○ ● ○ ● ● ○
+Frame 4: ● ● ● ○ ● ○ ● ● ● ●
+
+Much higher density of active LEDs
+Rapid, intense sparkle effect
+```
+
 ## Public Functions
 
 ### Constructor
@@ -90,33 +117,6 @@ controller->addMode(blinkMode);
 // - Intensify blinking during donations
 // - Return to normal pattern after effect
 // - Deactivate after donation effect completes
-```
-
-## Visual Effect Description
-
-### Normal Random Blinking
-```
-LED Strip over time:
-Frame 1: ○ ● ○ ○ ○ ○ ● ○ ○ ○
-Frame 2: ○ ○ ○ ● ○ ○ ○ ○ ○ ●
-Frame 3: ● ○ ○ ○ ○ ● ○ ○ ○ ○
-Frame 4: ○ ○ ● ○ ○ ○ ○ ● ○ ○
-
-● = LED ON (randomly selected)
-○ = LED OFF
-Pattern: Unpredictable, organic
-```
-
-### Donation Intensive Blinking
-```
-LED Strip during donation:
-Frame 1: ● ● ○ ● ● ○ ● ○ ● ●
-Frame 2: ○ ● ● ○ ● ● ● ● ○ ●
-Frame 3: ● ○ ● ● ○ ● ○ ● ● ○
-Frame 4: ● ● ● ○ ● ○ ● ● ● ●
-
-Much higher density of active LEDs
-Rapid, intense sparkle effect
 ```
 
 ## Randomness Algorithm
