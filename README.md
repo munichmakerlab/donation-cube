@@ -146,37 +146,292 @@ pio device monitor --baud 115200
 #define SENSOR_PIN 2         // GPIO pin for donation sensor
 ```
 
-### Mode Development
-To create a new mode:
+## 🎨 Creating Your Own LED Mode
 
-1. **Create mode files**:
+### Step-by-Step Guide
+
+Creating a custom LED mode requires implementing three core functions and following the AbstractMode pattern. Here's a comprehensive guide:
+
+#### 1. Create Mode Class Files
+
+Create two files: `lib/YourMode/YourMode.hpp` and `lib/YourMode/YourMode.cpp`
+
+**Header File (YourMode.hpp):**
 ```cpp
-// lib/NewMode/NewMode.hpp
-class NewMode : public AbstractMode {
-public:
-    NewMode(LightService* lightService, SpeakerService* speakerService);
-    void setup() override;
-    void loop() override;
-    void donationTriggered() override;
-};
+#pragma once
+#include "AbstractMode.hpp"
 
-// lib/NewMode/NewMode.cpp
-NewMode::NewMode(LightService* lightService, SpeakerService* speakerService) 
+class YourMode : public AbstractMode {
+private:
+    // Your private variables
+    unsigned long lastUpdate;
+    int currentPosition;
+    bool direction;
+    
+public:
+    YourMode(LightService* lightService, SpeakerService* speakerService);
+    void setup() override;           // Called once when mode starts
+    void loop() override;            // Called continuously
+    void donationTriggered() override; // Called when donation detected
+    
+private:
+    void updateAnimation(); // Your custom animation logic
+};
+```
+
+**Implementation File (YourMode.cpp):**
+```cpp
+#include "YourMode.hpp"
+#include "Config.h"
+#include <Arduino.h>
+
+YourMode::YourMode(LightService* lightService, SpeakerService* speakerService) 
     : AbstractMode(lightService, speakerService,
-                  "Your Mode Name",
-                  "Mode description", 
-                  "Your Name",
-                  "v1.0.0") {
+                  "Your Mode Name",           // Display name
+                  "Description of effect",    // What does your mode do?
+                  "Your Name",                // Author
+                  "v1.0.0"),                  // Version
+      lastUpdate(0),
+      currentPosition(0),
+      direction(true) {
+}
+
+void YourMode::setup() {
+    Serial.println("[INFO] YourMode setup - Your cool effect");
+    lightService->setup();
+    lightService->setBrightness(255);
+    
+    // Set donation effect duration (2-5 seconds recommended)
+    effectDuration = 3000; // 3 seconds
+    
+    // Initialize your variables
+    lastUpdate = millis();
+    currentPosition = 0;
+    direction = true;
+    
+    // Start initial animation
+    updateAnimation();
+}
+
+void YourMode::loop() {
+    unsigned long currentTime = millis();
+    
+    // CRITICAL: Check if donation effect should end
+    if (effectActive && currentTime - effectStartTime >= effectDuration) {
+        endDonationEffect(); // Automatically ends effect and deactivates mode
+        Serial.println("[INFO] YourMode donation effect ended - mode will deactivate");
+    }
+    
+    // Your animation timing (e.g., update every 100ms)
+    if (currentTime - lastUpdate >= 100) {
+        lastUpdate = currentTime;
+        updateAnimation();
+    }
+}
+
+void YourMode::donationTriggered() {
+    Serial.println("[INFO] YourMode donation triggered - Special effect!");
+    
+    // CRITICAL: Start donation effect (must call this!)
+    startDonationEffect();
+    
+    // Optional: Play sound
+    speakerService->playSound("your_sound.mp3");
+    
+    // Optional: Activate special donation animation
+    // (you can check effectActive in updateAnimation())
+}
+
+void YourMode::updateAnimation() {
+    // Example: Bouncing light effect
+    
+    // Clear all LEDs
+    for (int i = 0; i < NUM_LEDS; i++) {
+        lightService->setLedColor(i, CRGB::Black);
+    }
+    
+    // Set current LED
+    CRGB color = CRGB::White;
+    if (effectActive) {
+        // During donation: Full brightness, faster movement
+        color.fadeToBlackBy(0); // Full brightness
+    } else {
+        // Normal mode: Slightly dimmed
+        color.fadeToBlackBy(100);
+    }
+    
+    lightService->setLedColor(currentPosition, color);
+    
+    // Move position (bouncing effect)
+    if (direction) {
+        currentPosition++;
+        if (currentPosition >= NUM_LEDS - 1) {
+            direction = false;
+        }
+    } else {
+        currentPosition--;
+        if (currentPosition <= 0) {
+            direction = true;
+        }
+    }
 }
 ```
 
-2. **Register in main.cpp**:
+#### 2. Essential Functions Explained
+
+**setup()** - One-time initialization:
+- **Must call**: `lightService->setup()` and `lightService->setBrightness()`
+- **Must set**: `effectDuration` (2000-5000ms recommended)
+- Initialize your variables
+- Start initial animation
+
+**loop()** - Continuous execution:
+- **Critical check**: `if (effectActive && currentTime - effectStartTime >= effectDuration)`
+- **Must call**: `endDonationEffect()` when effect duration expires
+- Implement timing-based animation using `millis()`
+- Handle your mode's normal animation logic
+
+**donationTriggered()** - Donation event handler:
+- **Must call**: `startDonationEffect()` (required for proper lifecycle)
+- **Optional**: `speakerService->playSound()` for audio feedback
+- Modify animation behavior using `effectActive` variable
+
+#### 3. LED Control Examples
+
+**Single LED Control:**
 ```cpp
-#include "NewMode.hpp"
-// ...
-NewMode* newMode = new NewMode(lightService, speakerService);
-controller->addMode(newMode);
+CRGB color = CRGB::White;
+color.fadeToBlackBy(128); // 50% brightness (0=full, 255=off)
+lightService->setLedColor(ledIndex, color);
 ```
+
+**Multiple LEDs:**
+```cpp
+for (int i = 0; i < NUM_LEDS; i++) {
+    CRGB color = CRGB::White;
+    color.fadeToBlackBy(200); // Very dim
+    lightService->setLedColor(i, color);
+}
+```
+
+**Brightness Variations:**
+```cpp
+CRGB bright = CRGB::White;    // Full brightness
+CRGB dim = CRGB::White;
+dim.fadeToBlackBy(150);       // Dimmed
+CRGB veryDim = CRGB::White;
+veryDim.fadeToBlackBy(220);   // Very dim
+```
+
+#### 4. Register Your Mode
+
+Add to `src/main.cpp`:
+```cpp
+#include "YourMode.hpp"
+
+void setup() {
+    // ...existing code...
+    
+    // Create and register your mode
+    YourMode* yourMode = new YourMode(lightService, speakerService);
+    controller->addMode(yourMode);
+    
+    // ...existing code...
+}
+```
+
+#### 5. Timing and Animation Patterns
+
+**Basic Timing:**
+```cpp
+unsigned long lastUpdate = 0;
+const unsigned long updateInterval = 100; // 100ms
+
+if (millis() - lastUpdate >= updateInterval) {
+    lastUpdate = millis();
+    // Update animation
+}
+```
+
+**Variable Speed (Normal vs Donation):**
+```cpp
+unsigned long normalSpeed = 200;  // Normal: 200ms
+unsigned long fastSpeed = 50;     // Donation: 50ms
+
+unsigned long currentSpeed = effectActive ? fastSpeed : normalSpeed;
+```
+
+**Circular Movement:**
+```cpp
+currentPosition = (currentPosition + 1) % NUM_LEDS; // Loops 0->29->0
+```
+
+**Wave Patterns:**
+```cpp
+for (int i = 0; i < waveWidth; i++) {
+    int ledIndex = (basePosition + i) % NUM_LEDS;
+    uint8_t brightness = 255 - (i * 40); // Gradient fade
+    CRGB color = CRGB::White;
+    color.fadeToBlackBy(255 - brightness);
+    lightService->setLedColor(ledIndex, color);
+}
+```
+
+#### 6. Common Animation Techniques
+
+**Breathing Effect (like StaticMode):**
+```cpp
+float breath = (sin(millis() / 1000.0) + 1.0) / 2.0; // 0.0 to 1.0
+uint8_t brightness = (uint8_t)(255 * breath);
+CRGB color = CRGB::White;
+color.fadeToBlackBy(255 - brightness);
+```
+
+**Random Blinking (like BlinkMode):**
+```cpp
+if (random(100) < 5) { // 5% chance per update
+    int randomLed = random(NUM_LEDS);
+    lightService->setLedColor(randomLed, CRGB::White);
+}
+```
+
+**Center Expansion (like CenterMode):**
+```cpp
+int center = NUM_LEDS / 2;
+for (int i = 0; i <= expansionSize; i++) {
+    if (center + i < NUM_LEDS) lightService->setLedColor(center + i, CRGB::White);
+    if (center - i >= 0) lightService->setLedColor(center - i, CRGB::White);
+}
+```
+
+#### 7. Development Tips
+
+**Debugging:**
+- Use `Serial.println()` for debug output
+- Test without donation effects first
+- Start with simple patterns
+- Use small update intervals (50-200ms)
+
+**Best Practices:**
+- Always check `ledIndex % NUM_LEDS` for ring wrapping
+- Use `effectActive` to differentiate normal vs donation behavior
+- Implement smooth transitions between states
+- Keep donation effects visually distinct (faster/brighter)
+
+**Testing Checklist:**
+- ✅ Mode starts correctly with `setup()`
+- ✅ Animation runs smoothly in `loop()`
+- ✅ Donation trigger works with `donationTriggered()`
+- ✅ Effect automatically ends after `effectDuration`
+- ✅ Mode switches to next mode after donation effect
+
+### Inspiration from Existing Modes
+
+- **StaticMode**: Smooth breathing using `sin()` functions
+- **WaveMode**: Moving patterns with modulo arithmetic
+- **BlinkMode**: Random selection with `random()` function
+- **CenterMode**: Symmetric expansion from center point
+- **ChaseMode**: Trailing effects with fade-out patterns
 
 ## 🔍 Troubleshooting
 
@@ -278,6 +533,39 @@ This project is licensed under the MIT License. See [LICENSE](LICENSE) for detai
 - [ ] Temperature-based effects
 - [ ] Sound-reactive modes
 
+## 📚 Library Documentation
+
+### Service Libraries
+| Library | Purpose | Documentation |
+|---------|---------|---------------|
+| **AbstractMode** | Base class for all LED modes with donation effect management | [📖 AbstractMode README](lib/AbstractMode/README.md) |
+| **Controller** | Mode management with automatic switching and sensor integration | [📖 Controller README](lib/Controller/README.md) |
+| **LightService** | FastLED wrapper for WS2812B LED strip control | [📖 LightService README](lib/LightService/README.md) |
+| **SensorService** | TCRT5000 donation detection with edge detection | [📖 SensorService README](lib/SensorService/README.md) |
+| **SpeakerService** | Audio service (mock implementation for future integration) | [📖 SpeakerService README](lib/SpeakerService/README.md) |
+
+### LED Animation Modes
+| Mode | Effect Description | Documentation |
+|------|-------------------|---------------|
+| **StaticMode** | Gentle breathing effect with white LEDs | [📖 StaticMode README](lib/StaticMode/README.md) |
+| **WaveMode** | Wave motion effect moving through LED strip | [📖 WaveMode README](lib/WaveMode/README.md) |
+| **BlinkMode** | Random blinking pattern with white LEDs | [📖 BlinkMode README](lib/BlinkMode/README.md) |
+| **HalfMode** | Alternating first and second half illumination | [📖 HalfMode README](lib/HalfMode/README.md) |
+| **CenterMode** | Light expanding from center outwards | [📖 CenterMode README](lib/CenterMode/README.md) |
+| **ChaseMode** | Moving light with trailing tail effect | [📖 ChaseMode README](lib/ChaseMode/README.md) |
+
+### Quick Library Reference
+
+**For developers extending the system:**
+- Start with [AbstractMode README](lib/AbstractMode/README.md) to understand the base class
+- Use [LightService README](lib/LightService/README.md) for LED control reference
+- Check [Controller README](lib/Controller/README.md) for mode registration
+
+**For mode development:**
+- Study existing mode implementations: [StaticMode](lib/StaticMode/README.md), [WaveMode](lib/WaveMode/README.md), [BlinkMode](lib/BlinkMode/README.md)
+- Reference [SensorService README](lib/SensorService/README.md) for donation detection
+- See [SpeakerService README](lib/SpeakerService/README.md) for audio integration
+
 ## 📦 Project Structure
 
 ```
@@ -285,17 +573,17 @@ SpendenBox/
 ├── src/main.cpp              # Main application entry point
 ├── include/Config.h          # Hardware configuration
 ├── lib/
-│   ├── AbstractMode/         # Base mode class
-│   ├── Controller/           # Mode management
-│   ├── LightService/         # FastLED wrapper
-│   ├── SensorService/        # TCRT5000 handling
-│   ├── SpeakerService/       # Audio service (mock)
-│   ├── StaticMode/           # Breathing effect mode
-│   ├── WaveMode/             # Wave motion mode
-│   ├── BlinkMode/            # Random blink mode
-│   ├── HalfMode/             # Half switching mode
-│   ├── CenterMode/           # Center expansion mode
-│   └── ChaseMode/            # Chase light mode
+│   ├── AbstractMode/         # Base mode class → [README](lib/AbstractMode/README.md)
+│   ├── Controller/           # Mode management → [README](lib/Controller/README.md)
+│   ├── LightService/         # FastLED wrapper → [README](lib/LightService/README.md)
+│   ├── SensorService/        # TCRT5000 handling → [README](lib/SensorService/README.md)
+│   ├── SpeakerService/       # Audio service (mock) → [README](lib/SpeakerService/README.md)
+│   ├── StaticMode/           # Breathing effect mode → [README](lib/StaticMode/README.md)
+│   ├── WaveMode/             # Wave motion mode → [README](lib/WaveMode/README.md)
+│   ├── BlinkMode/            # Random blink mode → [README](lib/BlinkMode/README.md)
+│   ├── HalfMode/             # Half switching mode → [README](lib/HalfMode/README.md)
+│   ├── CenterMode/           # Center expansion mode → [README](lib/CenterMode/README.md)
+│   └── ChaseMode/            # Chase light mode → [README](lib/ChaseMode/README.md)
 └── platformio.ini            # PlatformIO configuration
 ```
 

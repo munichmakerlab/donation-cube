@@ -1,0 +1,147 @@
+# StaticMode Library
+
+## Overview
+StaticMode provides a gentle breathing effect with white LEDs, creating a calm and soothing animation. The mode features smooth brightness transitions that mimic natural breathing patterns.
+
+## Purpose
+- **Breathing animation** with smooth brightness transitions
+- **Calming effect** using gentle white LED pulsing
+- **Variable speed** with faster breathing during donation effects
+- **Professional appearance** suitable for donation box environments
+
+## Animation Description
+- **Normal state**: Gentle breathing effect with white LEDs
+- **Donation effect**: Faster breathing animation for 3 seconds
+- **Pattern**: All LEDs breathe in unison from dim to bright and back
+- **Color**: Pure white with brightness variations only
+
+## Public Functions
+
+### Constructor
+```cpp
+StaticMode(LightService* lightService, SpeakerService* speakerService)
+```
+**Purpose**: Initialize static breathing mode  
+**Parameters**: Required services for LED and audio control  
+**Metadata**: 
+- Name: "Static Breathing"
+- Description: "Gentle breathing effect with white LEDs"
+- Author: "Friedjof"
+- Version: "v1.0.0"
+
+### Core Functions (Override AbstractMode)
+
+```cpp
+void setup()
+```
+**Purpose**: Initialize breathing effect  
+**Actions**:
+- Sets up LED service with full brightness
+- Configures 3-second donation effect duration
+- Initializes breathing parameters
+- Starts initial breathing animation
+
+```cpp
+void loop()
+```
+**Purpose**: Update breathing animation  
+**Behavior**:
+- Checks for donation effect completion
+- Updates breathing animation at appropriate intervals
+- Manages brightness transitions smoothly
+- Handles speed changes during donation effects
+
+```cpp
+void donationTriggered()
+```
+**Purpose**: Handle donation detection  
+**Actions**:
+- Starts donation effect timer
+- Switches to faster breathing speed
+- Plays audio feedback ("static.mp3")
+- Provides visual confirmation of donation
+
+## Animation Parameters
+
+### Breathing Speed
+- **Normal breathing**: Slow, calming pace (BREATH_SPEED_NORMAL)
+- **Donation breathing**: Fast, excited pace (BREATH_SPEED_FAST)
+- **Transition**: Immediate speed change when donation detected
+
+### Brightness Range
+- **Minimum**: MIN_BRIGHTNESS (dim but visible)
+- **Maximum**: 255 (full brightness)
+- **Transition**: Smooth linear brightness changes
+
+## Usage Example
+
+```cpp
+// Create static breathing mode
+StaticMode* staticMode = new StaticMode(lightService, speakerService);
+
+// Add to controller
+controller->addMode(staticMode);
+
+// Mode will automatically:
+// - Start breathing effect when activated
+// - Handle donation detection
+// - Switch to faster breathing during donations
+// - Return to normal speed after effect
+// - Deactivate after donation effect completes
+```
+
+## Visual Effect Description
+
+### Normal Breathing
+```
+LED Brightness over time:
+    ▲
+255 |     ●●●     ●●●
+    |   ●     ●   ●     ●
+    | ●         ● ●       ●
+ 50 |●           ●         ●
+    └─────────────────────────► Time
+    Smooth, gentle transitions
+```
+
+### Donation Breathing
+```
+LED Brightness over time:
+    ▲
+255 |●●●●●●●●●●●●●●●●●●●●●●●
+    |                         
+    |                         
+ 50 |                         
+    └─────────────────────────► Time
+    Fast, excited breathing
+```
+
+## Technical Details
+
+### Timing
+- **Update interval**: Controlled by breathing speed settings
+- **Smooth transitions**: Linear brightness interpolation
+- **Donation duration**: 3 seconds of accelerated breathing
+
+### LED Management
+- **All LEDs synchronized**: Uniform breathing across entire strip
+- **Color consistency**: Pure white (CRGB::White) only
+- **Brightness control**: Uses fadeToBlackBy() for smooth dimming
+
+### Integration
+- **Automatic activation**: Ready when controller activates mode
+- **Sensor integration**: Responds to donation detection immediately
+- **Audio feedback**: Plays mode-specific sound during donations
+- **Clean transitions**: Smooth handoff to next mode
+
+## Ideal Use Cases
+- **Default mode**: Gentle, welcoming appearance
+- **Calm environments**: Libraries, museums, quiet spaces
+- **Professional settings**: Corporate donation drives
+- **Accessibility**: Clear visual indication without distraction
+
+## Dependencies
+- AbstractMode (base functionality)
+- LightService (LED control)
+- SpeakerService (audio feedback)
+- Config.h (timing and brightness constants)
