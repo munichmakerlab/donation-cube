@@ -551,17 +551,17 @@ SpendenBox/
 ├── src/main.cpp              # Main application entry point
 ├── include/Config.h          # Hardware configuration
 ├── lib/
-│   ├── AbstractMode/         # Base mode class → [README](lib/AbstractMode/README.md)
-│   ├── Controller/           # Mode management → [README](lib/Controller/README.md)
-│   ├── LightService/         # FastLED wrapper → [README](lib/LightService/README.md)
-│   ├── SensorService/        # TCRT5000 handling → [README](lib/SensorService/README.md)
-│   ├── SpeakerService/       # Audio service (mock) → [README](lib/SpeakerService/README.md)
-│   ├── StaticMode/           # Breathing effect mode → [README](lib/StaticMode/README.md)
-│   ├── WaveMode/             # Wave motion mode → [README](lib/WaveMode/README.md)
-│   ├── BlinkMode/            # Random blink mode → [README](lib/BlinkMode/README.md)
-│   ├── HalfMode/             # Half switching mode → [README](lib/HalfMode/README.md)
-│   ├── CenterMode/           # Center expansion mode → [README](lib/CenterMode/README.md)
-│   └── ChaseMode/            # Chase light mode → [README](lib/ChaseMode/README.md)
+│   ├── AbstractMode/         # Base mode class
+│   ├── Controller/           # Mode management
+│   ├── LightService/         # FastLED wrapper
+│   ├── SensorService/        # TCRT5000 handling
+│   ├── SpeakerService/       # Audio service (mock)
+│   ├── StaticMode/           # Breathing effect mode
+│   ├── WaveMode/             # Wave motion mode
+│   ├── BlinkMode/            # Random blink mode
+│   ├── HalfMode/             # Half switching mode
+│   ├── CenterMode/           # Center expansion mode
+│   └── ChaseMode/            # Chase light mode
 └── platformio.ini            # PlatformIO configuration
 ```
 
