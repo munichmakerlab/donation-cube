@@ -51,14 +51,21 @@ def complete_setup_workflow():
         else:
             # Ask if user wants to continue (interactive mode only)
             while True:
-                cont = input(f"{Colors.BOLD}Continue without credentials? [y/N]: {Colors.END}").strip().lower()
-                if cont in ['n', '', 'no']:
-                    colored_print("👋 Setup cancelled", Colors.YELLOW)
+                try:
+                    cont = input(f"{Colors.BOLD}Continue without credentials? [y/N]: {Colors.END}").strip().lower()
+                    if cont in ['n', '', 'no']:
+                        colored_print("👋 Setup cancelled", Colors.YELLOW)
+                        return False
+                    elif cont in ['y', 'yes']:
+                        break
+                    else:
+                        colored_print("❌ Please enter y or n", Colors.RED)
+                except EOFError:
+                    colored_print("\n⚠️  EOF detected - stopping setup", Colors.YELLOW)
                     return False
-                elif cont in ['y', 'yes']:
-                    break
-                else:
-                    colored_print("❌ Please enter y or n", Colors.RED)
+                except KeyboardInterrupt:
+                    colored_print("\n👋 Setup cancelled by user", Colors.YELLOW)
+                    return False
     
     return build_and_flash_workflow()
 
@@ -118,15 +125,22 @@ def build_and_flash_workflow():
         colored_print("\n🎉 Device flashed successfully!", Colors.GREEN, bold=True)
         
         while True:
-            monitor = input(f"{Colors.BOLD}Start serial monitor? [Y/n]: {Colors.END}").strip().lower()
-            if monitor in ['', 'y', 'yes']:
-                start_serial_monitor(flash_target, pio_path)
+            try:
+                monitor = input(f"{Colors.BOLD}Start serial monitor? [Y/n]: {Colors.END}").strip().lower()
+                if monitor in ['', 'y', 'yes']:
+                    start_serial_monitor(flash_target, pio_path)
+                    break
+                elif monitor in ['n', 'no']:
+                    colored_print("✅ Setup complete - serial monitor skipped", Colors.GREEN)
+                    break
+                else:
+                    colored_print("❌ Please enter y or n", Colors.RED)
+            except EOFError:
+                colored_print("\n⚠️  EOF detected - skipping serial monitor", Colors.YELLOW)
                 break
-            elif monitor in ['n', 'no']:
-                colored_print("✅ Setup complete - serial monitor skipped", Colors.GREEN)
+            except KeyboardInterrupt:
+                colored_print("\n👋 Skipping serial monitor", Colors.YELLOW)
                 break
-            else:
-                colored_print("❌ Please enter y or n", Colors.RED)
         
         success_stages.append('monitor')
         
@@ -166,7 +180,13 @@ def main(full_mode=False):
         
         # After any action, show a separator and wait for user input
         colored_print("\n" + "="*60, Colors.BLUE)
-        input(f"{Colors.BOLD}Press Enter to return to main menu...{Colors.END}")
+        try:
+            input(f"{Colors.BOLD}Press Enter to return to main menu...{Colors.END}")
+        except EOFError:
+            colored_print("\n⚠️  EOF detected - returning to menu", Colors.YELLOW)
+        except KeyboardInterrupt:
+            colored_print("\n👋 Goodbye! Thanks for using the Donation Box Setup Wizard!", Colors.CYAN, bold=True)
+            break
         print()  # Add some spacing before next menu
 
 if __name__ == "__main__":

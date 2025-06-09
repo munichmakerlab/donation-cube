@@ -61,7 +61,14 @@ def select_target_for_flashing(successful_builds):
     colored_print(f"   [{len(successful_builds) + 1}] Skip flashing", Colors.YELLOW)
     
     while True:
-        choice = input(f"\n{Colors.BOLD}Choose target [1-{len(successful_builds) + 1}]: {Colors.END}").strip()
+        try:
+            choice = input(f"\n{Colors.BOLD}Choose target [1-{len(successful_builds) + 1}]: {Colors.END}").strip()
+        except EOFError:
+            colored_print("\n⚠️  EOF detected - skipping flashing", Colors.YELLOW)
+            return None
+        except KeyboardInterrupt:
+            colored_print("\n👋 Flashing cancelled by user", Colors.YELLOW)
+            return None
         
         try:
             choice_num = int(choice)
@@ -260,7 +267,14 @@ def wait_for_device_connection(timeout=30):
     colored_print("   [1] Try manual flash command", Colors.BLUE)
     colored_print("   [2] Skip flashing", Colors.BLUE)
     
-    choice = input(f"\n{Colors.BOLD}Choose option [1/2]: {Colors.END}").strip()
+    try:
+        choice = input(f"\n{Colors.BOLD}Choose option [1/2]: {Colors.END}").strip()
+    except EOFError:
+        colored_print("\n⚠️  EOF detected - skipping flashing", Colors.YELLOW)
+        return False
+    except KeyboardInterrupt:
+        colored_print("\n👋 Flashing cancelled by user", Colors.YELLOW)
+        return False
     
     if choice == "1":
         colored_print("\n📋 Manual flash commands:", Colors.CYAN, bold=True)
