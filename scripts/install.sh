@@ -101,7 +101,7 @@ run_setup() {
     print_info "Starting project setup wizard..."
     echo ""
     
-    if python3 scripts/setup.py; then
+    if python3 scripts/setup.py --full; then
         print_success "Setup completed successfully!"
     else
         print_warning "Setup script finished with warnings or errors."
