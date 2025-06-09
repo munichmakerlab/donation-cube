@@ -18,6 +18,7 @@ class Controller {
 
         void switchMode(uint8_t index);
         void switchNextMode();
+        
     public:
         Controller(SensorService* sensorService)
             : sensorService(sensorService) {}
@@ -27,6 +28,11 @@ class Controller {
 
         void setup();
         void loop();
+        
+        // Public getters for MQTT integration
+        String getCurrentModeName() const;
+        uint8_t getModeCount() const { return modeCount; }
+        uint8_t getCurrentModeIndex() const { return currentModeIndex; }
 };
 
 #endif // CONTROLLER_HPP

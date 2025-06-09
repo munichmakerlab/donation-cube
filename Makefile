@@ -1,158 +1,165 @@
-# Makefile für PlatformIO ESP8266 Projekt
-# SpendenBox - FastLED Controller
+# Makefile for PlatformIO ESP8266/ESP32 Project
+# DonationBox - FastLED Controller
 
-# Umgebung aus platformio.ini
+# Environment from platformio.ini
 ENV = esp32c3 #wemos_d1_mini
 
-# PlatformIO Befehle
+# PlatformIO Commands
 PIO = ~/.platformio/penv/bin/platformio
 
-# Standard Ziel
+# Default Target
 .DEFAULT_GOAL := build
 
-# Phony Targets (keine echten Dateien)
-.PHONY: help build upload monitor clean test check install deps list-ports
+# Phony Targets (not real files)
+.PHONY: help build upload monitor clean test check install deps list-ports setup
 
-# Hilfe anzeigen
+# Show help
 help:
-	@echo "Verfügbare Befehle:"
-	@echo "  build      - Projekt kompilieren"
-	@echo "  upload     - Firmware auf das Board hochladen"
-	@echo "  monitor    - Serieller Monitor starten"
-	@echo "  flash      - Build + Upload in einem Schritt"
-	@echo "  clean      - Build-Dateien löschen"
-	@echo "  test       - Tests ausführen"
-	@echo "  check      - Code-Analyse durchführen"
-	@echo "  install    - PlatformIO installieren/aktualisieren"
-	@echo "  deps       - Abhängigkeiten installieren"
-	@echo "  list-ports - Verfügbare serielle Ports anzeigen"
-	@echo "  erase      - Flash-Speicher vollständig löschen"
-	@echo "  size       - Speicherverbrauch anzeigen"
+	@echo "Available commands:"
+	@echo "  setup      - Run project setup wizard"
+	@echo "  build      - Compile project"
+	@echo "  upload     - Upload firmware to board"
+	@echo "  monitor    - Start serial monitor"
+	@echo "  flash      - Build + Upload in one step"
+	@echo "  clean      - Delete build files"
+	@echo "  test       - Run tests"
+	@echo "  check      - Perform code analysis"
+	@echo "  install    - Install/update PlatformIO"
+	@echo "  deps       - Install dependencies"
+	@echo "  list-ports - Show available serial ports"
+	@echo "  erase      - Completely erase flash memory"
+	@echo "  size       - Show memory usage"
 
-# Projekt kompilieren
+# Run project setup wizard
+setup:
+	@echo "Starting project setup wizard..."
+	python3 scripts/setup.py
+
+# Compile project
 build:
-	@echo "Kompiliere Projekt..."
+	@echo "Compiling project..."
 	$(PIO) run -e $(ENV)
 
-# Firmware hochladen
+# Upload firmware
 upload:
-	@echo "Lade Firmware hoch..."
+	@echo "Uploading firmware..."
 	$(PIO) run -e $(ENV) --target upload
 
-# Serieller Monitor
+# Serial monitor
 monitor:
-	@echo "Starte seriellen Monitor..."
+	@echo "Starting serial monitor..."
 	$(PIO) device monitor
 
-# Build und Upload in einem Schritt
+# Build and upload in one step
 flash: build upload monitor
-	@echo "Build und Upload abgeschlossen!"
+	@echo "Build and upload completed!"
 
-# Build-Dateien löschen
+# Delete build files
 clean:
-	@echo "Lösche Build-Dateien..."
+	@echo "Deleting build files..."
 	$(PIO) run --target clean
-	@echo "Lösche .pio Ordner..."
+	@echo "Deleting .pio folder..."
 	rm -rf .pio
 
-# Tests ausführen
+# Run tests
 test:
-	@echo "Führe Tests aus..."
+	@echo "Running tests..."
 	$(PIO) test -e $(ENV)
 
-# Code-Analyse
+# Code analysis
 check:
-	@echo "Führe Code-Analyse durch..."
+	@echo "Performing code analysis..."
 	$(PIO) check -e $(ENV)
 
-# PlatformIO installieren/aktualisieren
+# Install/update PlatformIO
 install:
-	@echo "Installiere/Aktualisiere PlatformIO..."
+	@echo "Installing/updating PlatformIO..."
 	pip install --upgrade platformio
 
-# Abhängigkeiten installieren
+# Install dependencies
 deps:
-	@echo "Installiere Projekt-Abhängigkeiten..."
+	@echo "Installing project dependencies..."
 	$(PIO) lib install
 
-# Verfügbare serielle Ports anzeigen
+# Show available serial ports
 list-ports:
-	@echo "Verfügbare serielle Ports:"
+	@echo "Available serial ports:"
 	$(PIO) device list
 
-# Flash-Speicher vollständig löschen
+# Completely erase flash memory
 erase:
-	@echo "Lösche Flash-Speicher..."
+	@echo "Erasing flash memory..."
 	$(PIO) run -e $(ENV) --target erase
 
-# Speicherverbrauch anzeigen
+# Show memory usage
 size:
-	@echo "Zeige Speicherverbrauch an..."
+	@echo "Showing memory usage..."
 	$(PIO) run -e $(ENV) --target size
 
-# Entwicklungs-Workflow: Clean -> Build -> Upload -> Monitor
+# Development workflow: Clean -> Build -> Upload -> Monitor
 dev: clean build upload monitor
 
-# Release Build (mit Optimierungen)
+# Release build (with optimizations)
 release:
-	@echo "Erstelle Release Build..."
+	@echo "Creating release build..."
 	$(PIO) run -e $(ENV) --target upload --upload-port auto
 
-# Debugging-Informationen
+# Debugging information
 debug:
 	@echo "PlatformIO Version:"
 	$(PIO) --version
 	@echo ""
-	@echo "Projekt-Informationen:"
+	@echo "Project Information:"
 	$(PIO) project data
 	@echo ""
-	@echo "Board-Informationen:"
+	@echo "Board Information:"
 	$(PIO) boards $(ENV)
 
-# Library-Verwaltung
+# Library management
 lib-search:
-	@read -p "Suchbegriff eingeben: " term; $(PIO) lib search $$term
+	@read -p "Enter search term: " term; $(PIO) lib search $$term
 
 lib-install:
-	@read -p "Library Name/ID eingeben: " lib; $(PIO) lib install $$lib
+	@read -p "Enter library name/ID: " lib; $(PIO) lib install $$lib
 
 lib-list:
-	@echo "Installierte Libraries:"
+	@echo "Installed libraries:"
 	$(PIO) lib list
 
 lib-update:
-	@echo "Aktualisiere Libraries..."
+	@echo "Updating libraries..."
 	$(PIO) lib update
 
-# Konfiguration anzeigen
+# Show configuration
 config:
-	@echo "Aktuelle Konfiguration:"
+	@echo "Current configuration:"
 	@cat platformio.ini
 	@echo ""
-	@echo "Umgebungsdetails für $(ENV):"
+	@echo "Environment details for $(ENV):"
 	$(PIO) project config --environment $(ENV)
 
-# OTA (Over-The-Air) Update (falls konfiguriert)
+# OTA (Over-The-Air) Update (if configured)
 ota:
 	@echo "OTA Update..."
 	$(PIO) run -e $(ENV) --target upload --upload-port IP_ADDRESS
 
-# Backup der aktuellen Firmware erstellen
+# Create backup of current firmware
 backup:
-	@echo "Erstelle Firmware-Backup..."
+	@echo "Creating firmware backup..."
 	@mkdir -p backup
 	@cp .pio/build/$(ENV)/firmware.bin backup/firmware_$(shell date +%Y%m%d_%H%M%S).bin
-	@echo "Backup erstellt in backup/"
+	@echo "Backup created in backup/"
 
-# Alle Logs löschen
+# Delete all logs
 clean-logs:
-	@echo "Lösche Log-Dateien..."
+	@echo "Deleting log files..."
 	@find . -name "*.log" -delete
 
-# Schnelle Hilfe für häufige Befehle
+# Quick help for common commands
 quick:
-	@echo "Schnelle Befehle:"
-	@echo "  make build   - Kompilieren"
+	@echo "Quick commands:"
+	@echo "  make setup   - Project setup script"
+	@echo "  make build   - Compile"
 	@echo "  make flash   - Build + Upload + Monitor"
-	@echo "  make monitor - Monitor starten"
-	@echo "  make clean   - Aufräumen"
+	@echo "  make monitor - Start monitor"
+	@echo "  make clean   - Clean up"

@@ -13,20 +13,34 @@ void Controller::switchToNextMode() {
     switchNextMode();
 }
 
+String Controller::getCurrentModeName() const {
+    if (modeCount > 0 && currentModeIndex < modeCount) {
+        return modes[currentModeIndex]->getName();
+    }
+    return "none";
+}
+
 void Controller::switchMode(uint8_t index) {
     if (index < modeCount) {
+        String fromMode = getCurrentModeName();
+        
         // Deactivate current mode
-        if (modeCount > 0) {
+        if (modeCount > 0 && currentModeIndex < modeCount) {
             modes[currentModeIndex]->deactivate();
         }
         
         currentModeIndex = index;
         
         // Activate new mode
+        String toMode = getCurrentModeName();
         modes[currentModeIndex]->activate();
         modes[currentModeIndex]->printModeInfo();
+        
         Serial.print("[INFO] Switched to mode ");
-        Serial.println(index);
+        Serial.print(index);
+        Serial.print(" (");
+        Serial.print(toMode);
+        Serial.println(")");
     } else {
         Serial.println("[ERROR] Invalid mode index");
     }
@@ -57,6 +71,10 @@ void Controller::loop() {
 
     // Check for sensor state changes
     if (sensorService->risingEdge()) {
+        String currentModeName = getCurrentModeName();
+        Serial.println("[INFO] Donation detected! Mode: " + currentModeName);
+        
+        // Trigger donation effect
         modes[currentModeIndex]->donationTriggered();
     }
 

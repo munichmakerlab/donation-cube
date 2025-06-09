@@ -3,3 +3,17 @@
 .vscode/c_cpp_properties.json
 .vscode/launch.json
 .vscode/ipch
+
+# WiFi and MQTT credentials (keep private)
+include/credentials.h
+
+# Compilation database
+compile_commands.json
+
+# Temporary files
+*.tmp
+*.bak
+*~
+
+# Python files
+*.pyc
