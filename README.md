@@ -40,12 +40,12 @@ This project implements a modular controller system for donation boxes with:
 ```
 
 ### Service Layer
-- **LightService**: FastLED wrapper with CRGB color management
-- **SensorService**: TCRT5000 with edge detection and debouncing  
-- **SpeakerService**: Mock implementation for future sound integration
+- **[LightService](lib/LightService/)**: FastLED wrapper with CRGB color management
+- **[SensorService](lib/SensorService/)**: TCRT5000 with edge detection and debouncing  
+- **[SpeakerService](lib/SpeakerService/)**: Mock implementation for future sound integration
 
 ### Mode System
-- **AbstractMode**: Base class with donation effect framework
+- **[AbstractMode](lib/AbstractMode/)**: Base class with donation effect framework
 - **Mode Metadata**: Name, description, author, version for each mode
 - **Automatic Lifecycle**: Setup → Loop → Donation Effect → Deactivation
 
@@ -538,33 +538,33 @@ This project is licensed under the MIT License. See [LICENSE](LICENSE) for detai
 ### Service Libraries
 | Library | Purpose | Documentation |
 |---------|---------|---------------|
-| **AbstractMode** | Base class for all LED modes with donation effect management | [📖 AbstractMode README](lib/AbstractMode/README.md) |
-| **Controller** | Mode management with automatic switching and sensor integration | [📖 Controller README](lib/Controller/README.md) |
-| **LightService** | FastLED wrapper for WS2812B LED strip control | [📖 LightService README](lib/LightService/README.md) |
-| **SensorService** | TCRT5000 donation detection with edge detection | [📖 SensorService README](lib/SensorService/README.md) |
-| **SpeakerService** | Audio service (mock implementation for future integration) | [📖 SpeakerService README](lib/SpeakerService/README.md) |
+| **AbstractMode** | Base class for all LED modes with donation effect management | [📖 AbstractMode](lib/AbstractMode/) |
+| **Controller** | Mode management with automatic switching and sensor integration | [📖 Controller](lib/Controller/) |
+| **LightService** | FastLED wrapper for WS2812B LED strip control | [📖 LightService](lib/LightService/) |
+| **SensorService** | TCRT5000 donation detection with edge detection | [📖 SensorService](lib/SensorService/) |
+| **SpeakerService** | Audio service (mock implementation for future integration) | [📖 SpeakerService](lib/SpeakerService/) |
 
 ### LED Animation Modes
 | Mode | Effect Description | Documentation |
 |------|-------------------|---------------|
-| **StaticMode** | Gentle breathing effect with white LEDs | [📖 StaticMode README](lib/StaticMode/README.md) |
-| **WaveMode** | Wave motion effect moving through LED strip | [📖 WaveMode README](lib/WaveMode/README.md) |
-| **BlinkMode** | Random blinking pattern with white LEDs | [📖 BlinkMode README](lib/BlinkMode/README.md) |
-| **HalfMode** | Alternating first and second half illumination | [📖 HalfMode README](lib/HalfMode/README.md) |
-| **CenterMode** | Light expanding from center outwards | [📖 CenterMode README](lib/CenterMode/README.md) |
-| **ChaseMode** | Moving light with trailing tail effect | [📖 ChaseMode README](lib/ChaseMode/README.md) |
+| **StaticMode** | Gentle breathing effect with white LEDs | [📖 StaticMode](lib/StaticMode/) |
+| **WaveMode** | Wave motion effect moving through LED strip | [📖 WaveMode](lib/WaveMode/) |
+| **BlinkMode** | Random blinking pattern with white LEDs | [📖 BlinkMode](lib/BlinkMode/) |
+| **HalfMode** | Alternating first and second half illumination | [📖 HalfMode](lib/HalfMode/) |
+| **CenterMode** | Light expanding from center outwards | [📖 CenterMode](lib/CenterMode/) |
+| **ChaseMode** | Moving light with trailing tail effect | [📖 ChaseMode](lib/ChaseMode/) |
 
 ### Quick Library Reference
 
 **For developers extending the system:**
-- Start with [AbstractMode README](lib/AbstractMode/README.md) to understand the base class
-- Use [LightService README](lib/LightService/README.md) for LED control reference
-- Check [Controller README](lib/Controller/README.md) for mode registration
+- Start with [AbstractMode](lib/AbstractMode/) to understand the base class
+- Use [LightService](lib/LightService/) for LED control reference
+- Check [Controller](lib/Controller/) for mode registration
 
 **For mode development:**
-- Study existing mode implementations: [StaticMode](lib/StaticMode/README.md), [WaveMode](lib/WaveMode/README.md), [BlinkMode](lib/BlinkMode/README.md)
-- Reference [SensorService README](lib/SensorService/README.md) for donation detection
-- See [SpeakerService README](lib/SpeakerService/README.md) for audio integration
+- Study existing mode implementations: [StaticMode](lib/StaticMode/), [WaveMode](lib/WaveMode/), [BlinkMode](lib/BlinkMode/)
+- Reference [SensorService](lib/SensorService/) for donation detection
+- See [SpeakerService](lib/SpeakerService/) for audio integration
 
 ## 📦 Project Structure
 
@@ -597,4 +597,4 @@ For questions or issues:
 ---
 
 *Professional modular LED controller system for donation boxes*  
-*Created with ❤️ by Friedjof*
+*Created with ❤️ by [Friedjof](https://github.com/Friedjof)*
