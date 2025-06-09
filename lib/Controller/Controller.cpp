@@ -76,6 +76,10 @@ void Controller::loop() {
         
         // Trigger donation effect
         modes[currentModeIndex]->donationTriggered();
+        
+        // Set global flag for MQTT notification
+        extern bool donationJustDetected;
+        donationJustDetected = true;
     }
 
     if (modes[currentModeIndex]->isActive()) {
