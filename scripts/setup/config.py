@@ -8,28 +8,7 @@ import os
 import sys
 import getpass
 from pathlib import Path
-
-# Try to import ui module with fallback
-try:
-    from scripts.setup.ui import colored_print, Colors
-except ImportError:
-    # Fallback to basic print if import fails
-    class Colors:
-        RED = '\033[0;31m'
-        GREEN = '\033[0;32m'
-        YELLOW = '\033[1;33m'
-        BLUE = '\033[0;34m'
-        CYAN = '\033[0;36m'
-        BOLD = '\033[1m'
-        END = '\033[0m'
-    
-    def colored_print(text, color=None, bold=False):
-        if color and bold:
-            print(f"{Colors.BOLD}{color}{text}{Colors.END}")
-        elif color:
-            print(f"{color}{text}{Colors.END}")
-        else:
-            print(text)
+from ui import colored_print, Colors
 
 def is_interactive_terminal():
     """Check if we're running in an interactive terminal"""
@@ -334,13 +313,7 @@ def setup_credentials():
     update_gitignore()
     
     # Print summary
-    try:
-        from scripts.setup.ui import print_summary
-        print_summary(wifi_ssid, mqtt_server, mqtt_port, mqtt_user)
-    except ImportError:
-        # Fallback if import fails - just show basic confirmation
-        colored_print("\n🎉 Credentials setup complete!", Colors.GREEN, bold=True)
-        colored_print(f"   WiFi: {wifi_ssid}", Colors.BLUE)
-        colored_print(f"   MQTT: {mqtt_server}:{mqtt_port}", Colors.BLUE)
+    from .ui import print_summary
+    print_summary(wifi_ssid, mqtt_server, mqtt_port, mqtt_user)
     
     return True
