@@ -68,8 +68,16 @@
 // ============================================================================
 //                          FEATURE TOGGLES
 // ============================================================================
-// Enable/disable optional features
-#define ENABLE_MQTT         true                // Enable MQTT connectivity
-#define ENABLE_SERIAL_DEBUG true                // Enable Serial debug output
-#define ENABLE_HEARTBEAT    true                // Enable MQTT heartbeat messages
-#define ENABLE_AUTO_RECONNECT true              // Enable automatic WiFi/MQTT reconnection
+// Network features (can be overridden in credentials.h)
+#ifndef ENABLE_WIFI
+#define ENABLE_WIFI         1                   // Enable WiFi connectivity (0 = standalone mode)
+#endif
+
+#ifndef ENABLE_MQTT
+#define ENABLE_MQTT         ENABLE_WIFI         // MQTT depends on WiFi
+#endif
+
+// Other optional features
+#define ENABLE_SERIAL_DEBUG 1                   // Enable Serial debug output
+#define ENABLE_HEARTBEAT    ENABLE_MQTT         // Enable MQTT heartbeat messages
+#define ENABLE_AUTO_RECONNECT ENABLE_WIFI       // Enable automatic WiFi/MQTT reconnection

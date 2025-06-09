@@ -6,7 +6,7 @@ Professional LED animation system with 6 modes, automatic switching, and MQTT mo
 
 **Hardware:** ESP32-C3/ESP8266 + WS2812B LEDs + TCRT5000 sensor  
 **Modes:** Static Breathing | Wave Motion | Random Blink | Half Switch | Center Expansion | Chase Light  
-**Features:** Donation detection, auto mode switching, WiFi/MQTT monitoring
+**Features:** Donation detection, auto mode switching, WiFi/MQTT monitoring, standalone mode
 
 ### Wiring
 ```
@@ -14,10 +14,24 @@ LED Strip: VCC→5V, GND→GND, DIN→GPIO8
 Sensor:    VCC→3.3V, GND→GND, OUT→GPIO2
 ```
 
-## 📡 MQTT Topics
+## 📡 MQTT Topics & Standalone Mode
+
+### WiFi/MQTT Mode (Default)
 - `donation-box/{clientId}/donations` - Events  
 - `donation-box/{clientId}/mode` - Mode changes  
 - `donation-box/{clientId}/heartbeat` - Health (30s)
+
+### Standalone Mode (WiFi-Free)
+When WiFi is disabled during setup, the system operates as a pure LED controller:
+- ✅ All LED modes work normally
+- ✅ Donation detection works
+- ✅ Automatic mode switching works
+- ✅ Sensor functionality works
+- ❌ No WiFi connection
+- ❌ No MQTT monitoring
+- ❌ No remote control
+
+All events are logged to serial output for debugging. Perfect for offline installations or environments without WiFi access.
 
 ## 🚀 Installation & Quick Start
 
@@ -45,15 +59,22 @@ chmod +x install.sh
 python3 scripts/setup.py  # Complete workflow: config → build → flash → monitor
 ```
 
+**Setup Options:**
+- **Network Mode**: Configure WiFi and MQTT for full monitoring capabilities
+- **Standalone Mode**: Skip WiFi/MQTT setup for offline-only LED controller operation
+
+The setup script will ask if you want to enable WiFi/MQTT or run in standalone mode.
+
 ### 🔧 Manual Setup
 ```bash
 pip install platformio && pio lib install
 cp include/credentials.h.example include/credentials.h  # Edit WiFi/MQTT settings
+# For standalone mode: Set ENABLE_WIFI = 0 in credentials.h
 pio run -e esp32c3 --target upload  # or wemos_d1_mini for ESP8266
 pio device monitor -e esp32c3
 ```
 
-**Test:** LEDs breathe → wave hand → donation effect + mode switch → check MQTT broker
+**Test:** LEDs breathe → wave hand → donation effect + mode switch → check MQTT broker (network mode) or serial output (standalone mode)
 
 ### 🗑️ Uninstallation
 To completely remove the project and PlatformIO:
@@ -117,6 +138,7 @@ float breath = (sin(millis() / 1000.0) + 1.0) / 2.0; // Breathing
 
 **LEDs not working:** Check 5V power, GPIO8 connection, ground, WS2812B compatibility  
 **Sensor issues:** Adjust sensitivity pot, check 3.3V power, test positioning  
+**WiFi/MQTT issues:** Verify credentials, network access, or use standalone mode  
 **Build errors:** `pio lib install FastLED`, verify platformio.ini, check includes
 
 ## 🤝 Contributing
@@ -130,13 +152,17 @@ float breath = (sin(millis() / 1000.0) + 1.0) / 2.0; // Breathing
 
 **Services:** AbstractMode, Controller, LightService, SensorService, SpeakerService, MqttService  
 **Modes:** Static, Wave, Blink, Half, Center, Chase  
-**Dependencies:** FastLED ≥3.6.0
+**Dependencies:** FastLED ≥3.6.0, PubSubClient (network mode only)
 
 ```
 src/main.cpp → Controller → [6 Modes] → LightService → WS2812B
              → SensorService → TCRT5000
-             → MqttService → WiFi/MQTT
+             → MqttService → WiFi/MQTT (optional)
 ```
+
+**Compilation Modes:**
+- `ENABLE_WIFI = 1`: Full network functionality (default)
+- `ENABLE_WIFI = 0`: Standalone LED controller (WiFi/MQTT disabled)
 
 ---
 *Professional LED controller for donation boxes* • *[Friedjof](https://github.com/Friedjof)* • *MIT License*

@@ -1,15 +1,20 @@
 #pragma once
 
 #include <Arduino.h>
+#include "Config.h"
+
+#if ENABLE_WIFI
 #ifdef ESP8266
   #include <ESP8266WiFi.h>
 #else
   #include <WiFi.h>
 #endif
 #include <PubSubClient.h>
+#endif
 
 class MqttService {
 private:
+#if ENABLE_WIFI
     WiFiClient wifiClient;
     PubSubClient mqttClient;
     
@@ -43,6 +48,10 @@ private:
     bool reconnect();
     void publishHeartbeat();
     String formatTimestamp();
+#else
+    // Dummy mode - no actual network functionality
+    bool dummyConnected = false;
+#endif
     
 public:
     MqttService(const char* ssid, const char* password, 
