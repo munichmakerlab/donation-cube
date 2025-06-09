@@ -23,13 +23,6 @@ fi
 # Remove PlatformIO installation
 echo "🔧 Removing PlatformIO..."
 
-# Remove PlatformIO via pip (if installed globally)
-if command -v pio &> /dev/null; then
-    echo "   Removing global PlatformIO installation..."
-    pip uninstall -y platformio
-    echo "✅ Removed global PlatformIO"
-fi
-
 # Remove PlatformIO home directory
 if [ -d "$HOME/.platformio" ]; then
     echo "   Removing PlatformIO data directory..."
