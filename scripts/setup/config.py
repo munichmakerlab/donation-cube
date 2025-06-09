@@ -359,13 +359,27 @@ def setup_credentials():
     update_gitignore()
     
     # Print summary
-    from .ui import print_summary
-    if wifi_enabled:
-        print_summary(wifi_ssid, mqtt_server, mqtt_port, mqtt_user)
-    else:
-        colored_print("\n📱 Standalone Mode Configuration Summary:", Colors.CYAN, bold=True)
-        colored_print("✅ WiFi: Disabled", Colors.GREEN)
-        colored_print("✅ MQTT: Disabled", Colors.GREEN)
-        colored_print("✅ Mode: Standalone LED Controller", Colors.GREEN)
+    try:
+        from .ui import print_summary
+        if wifi_enabled:
+            print_summary(wifi_ssid, mqtt_server, mqtt_port, mqtt_user)
+        else:
+            colored_print("\n📱 Standalone Mode Configuration Summary:", Colors.CYAN, bold=True)
+            colored_print("✅ WiFi: Disabled", Colors.GREEN)
+            colored_print("✅ MQTT: Disabled", Colors.GREEN)
+            colored_print("✅ Mode: Standalone LED Controller", Colors.GREEN)
+    except ImportError:
+        # Fallback for when relative import fails
+        if wifi_enabled:
+            colored_print("\n📱 Network Configuration Summary:", Colors.CYAN, bold=True)
+            colored_print(f"✅ WiFi: {wifi_ssid}", Colors.GREEN)
+            colored_print(f"✅ MQTT: {mqtt_server}:{mqtt_port}", Colors.GREEN)
+            if mqtt_user:
+                colored_print(f"✅ Username: {mqtt_user}", Colors.GREEN)
+        else:
+            colored_print("\n📱 Standalone Mode Configuration Summary:", Colors.CYAN, bold=True)
+            colored_print("✅ WiFi: Disabled", Colors.GREEN)
+            colored_print("✅ MQTT: Disabled", Colors.GREEN)
+            colored_print("✅ Mode: Standalone LED Controller", Colors.GREEN)
     
     return True
