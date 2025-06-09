@@ -15,6 +15,42 @@ WaveMode creates a dynamic wave effect that moves through the LED strip, simulat
 - **Pattern**: Moving bright spots with trailing gradient
 - **Color**: Pure white with brightness gradients for wave effect
 
+## Visual Effect Description
+
+### Normal Wave Motion
+```
+LED Strip (top view):
+    LED: 0 1 2 3 4 5 6 7 8 9 ...
+Frame 1: ● ○ ○ ○ ○ ○ ○ ○ ○ ○
+Frame 2: ○ ● ○ ○ ○ ○ ○ ○ ○ ○
+Frame 3: ○ ○ ● ○ ○ ○ ○ ○ ○ ○
+Frame 4: ○ ○ ○ ● ○ ○ ○ ○ ○ ○
+...      (wave continues around ring)
+
+● = Bright LED    ○ = Dim/Off LED
+```
+
+### Donation Wave Motion
+```
+LED Strip during donation:
+    LED: 0 1 2 3 4 5 6 7 8 9 ...
+Fast:   ●●●●●●●●●●●●●●●●●●●●●●
+Motion: Wave moves much faster
+        Multiple waves may be visible
+```
+
+### Wave Gradient Effect
+```
+Wave with trailing gradient:
+    LED: 0 1 2 3 4 5 6 7 8 9 ...
+Pattern: ○ ○ ● ◐ ◑ ○ ○ ○ ○ ○
+
+● = Full brightness (wave center)
+◐ = 75% brightness (wave trail)
+◑ = 50% brightness (wave trail)
+○ = Dim base lighting
+```
+
 ## Public Functions
 
 ### Constructor
@@ -88,42 +124,6 @@ controller->addMode(waveMode);
 // - Accelerate wave during donations
 // - Return to normal speed after effect
 // - Deactivate after donation effect completes
-```
-
-## Visual Effect Description
-
-### Normal Wave Motion
-```
-LED Strip (top view):
-    LED: 0 1 2 3 4 5 6 7 8 9 ...
-Frame 1: ● ○ ○ ○ ○ ○ ○ ○ ○ ○
-Frame 2: ○ ● ○ ○ ○ ○ ○ ○ ○ ○
-Frame 3: ○ ○ ● ○ ○ ○ ○ ○ ○ ○
-Frame 4: ○ ○ ○ ● ○ ○ ○ ○ ○ ○
-...      (wave continues around ring)
-
-● = Bright LED    ○ = Dim/Off LED
-```
-
-### Donation Wave Motion
-```
-LED Strip during donation:
-    LED: 0 1 2 3 4 5 6 7 8 9 ...
-Fast:   ●●●●●●●●●●●●●●●●●●●●●●
-Motion: Wave moves much faster
-        Multiple waves may be visible
-```
-
-### Wave Gradient Effect
-```
-Wave with trailing gradient:
-    LED: 0 1 2 3 4 5 6 7 8 9 ...
-Pattern: ○ ○ ● ◐ ◑ ○ ○ ○ ○ ○
-
-● = Full brightness (wave center)
-◐ = 75% brightness (wave trail)
-◑ = 50% brightness (wave trail)
-○ = Dim base lighting
 ```
 
 ## Technical Details

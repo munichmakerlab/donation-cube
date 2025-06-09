@@ -15,6 +15,32 @@ StaticMode provides a gentle breathing effect with white LEDs, creating a calm a
 - **Pattern**: All LEDs breathe in unison from dim to bright and back
 - **Color**: Pure white with brightness variations only
 
+## Visual Effect Description
+
+### Normal Breathing
+```
+LED Brightness over time:
+    ▲
+255 |     ●●●     ●●●
+    |   ●     ●   ●     ●
+    | ●         ● ●       ●
+ 50 |●           ●         ●
+    └─────────────────────────► Time
+    Smooth, gentle transitions
+```
+
+### Donation Breathing
+```
+LED Brightness over time:
+    ▲
+255 |●●●●●●●●●●●●●●●●●●●●●●●
+    |                         
+    |                         
+ 50 |                         
+    └─────────────────────────► Time
+    Fast, excited breathing
+```
+
 ## Public Functions
 
 ### Constructor
@@ -88,32 +114,6 @@ controller->addMode(staticMode);
 // - Switch to faster breathing during donations
 // - Return to normal speed after effect
 // - Deactivate after donation effect completes
-```
-
-## Visual Effect Description
-
-### Normal Breathing
-```
-LED Brightness over time:
-    ▲
-255 |     ●●●     ●●●
-    |   ●     ●   ●     ●
-    | ●         ● ●       ●
- 50 |●           ●         ●
-    └─────────────────────────► Time
-    Smooth, gentle transitions
-```
-
-### Donation Breathing
-```
-LED Brightness over time:
-    ▲
-255 |●●●●●●●●●●●●●●●●●●●●●●●
-    |                         
-    |                         
- 50 |                         
-    └─────────────────────────► Time
-    Fast, excited breathing
 ```
 
 ## Technical Details

@@ -15,6 +15,45 @@ CenterMode creates an expanding light effect that starts from the center of the 
 - **Pattern**: Light starts at center and grows symmetrically
 - **Color**: Pure white with expanding illumination zones
 
+## Visual Effect Description
+
+### Normal Center Expansion (30 LEDs example)
+```
+Center at LED 15:
+
+Step 1: ○○○○○○○○○○○○○○○●○○○○○○○○○○○○○○
+Step 2: ○○○○○○○○○○○○○○●●●○○○○○○○○○○○○○
+Step 3: ○○○○○○○○○○○○○●●●●●○○○○○○○○○○○○
+Step 4: ○○○○○○○○○○○○●●●●●●●○○○○○○○○○○○
+Step 5: ○○○○○○○○○○○●●●●●●●●●○○○○○○○○○○
+...continues until full expansion, then resets
+
+● = LEDs ON (expanding outward)
+○ = LEDs OFF
+```
+
+### Donation Rapid Expansion
+```
+Fast expansion cycles:
+Cycle 1: ●●●●●●●●●●●●●●●●●●●●●●●●●●●●●● (full)
+Reset:   ○○○○○○○○○○○○○○○●○○○○○○○○○○○○○○ (center)
+Cycle 2: ●●●●●●●●●●●●●●●●●●●●●●●●●●●●●● (full)
+Reset:   ○○○○○○○○○○○○○○○●○○○○○○○○○○○○○○ (center)
+
+Multiple rapid expansion cycles create pulsing effect
+```
+
+### Expansion Sequence Visualization
+```
+Radius 0: ○○○○○○○○○○○○○○○●○○○○○○○○○○○○○○
+Radius 1: ○○○○○○○○○○○○○○●●●○○○○○○○○○○○○○
+Radius 2: ○○○○○○○○○○○○○●●●●●○○○○○○○○○○○○
+Radius 3: ○○○○○○○○○○○○●●●●●●●○○○○○○○○○○○
+Radius 4: ○○○○○○○○○○○●●●●●●●●●○○○○○○○○○○
+Radius 5: ○○○○○○○○○○●●●●●●●●●●●○○○○○○○○○
+...continues until edges reached
+```
+
 ## Public Functions
 
 ### Constructor
@@ -103,45 +142,6 @@ controller->addMode(centerMode);
 // - Accelerate expansion during donations
 // - Return to normal speed after effect
 // - Deactivate after donation effect completes
-```
-
-## Visual Effect Description
-
-### Normal Center Expansion (30 LEDs example)
-```
-Center at LED 15:
-
-Step 1: ○○○○○○○○○○○○○○○●○○○○○○○○○○○○○○
-Step 2: ○○○○○○○○○○○○○○●●●○○○○○○○○○○○○○
-Step 3: ○○○○○○○○○○○○○●●●●●○○○○○○○○○○○○
-Step 4: ○○○○○○○○○○○○●●●●●●●○○○○○○○○○○○
-Step 5: ○○○○○○○○○○○●●●●●●●●●○○○○○○○○○○
-...continues until full expansion, then resets
-
-● = LEDs ON (expanding outward)
-○ = LEDs OFF
-```
-
-### Donation Rapid Expansion
-```
-Fast expansion cycles:
-Cycle 1: ●●●●●●●●●●●●●●●●●●●●●●●●●●●●●● (full)
-Reset:   ○○○○○○○○○○○○○○○●○○○○○○○○○○○○○○ (center)
-Cycle 2: ●●●●●●●●●●●●●●●●●●●●●●●●●●●●●● (full)
-Reset:   ○○○○○○○○○○○○○○○●○○○○○○○○○○○○○○ (center)
-
-Multiple rapid expansion cycles create pulsing effect
-```
-
-### Expansion Sequence Visualization
-```
-Radius 0: ○○○○○○○○○○○○○○○●○○○○○○○○○○○○○○
-Radius 1: ○○○○○○○○○○○○○○●●●○○○○○○○○○○○○○
-Radius 2: ○○○○○○○○○○○○○●●●●●○○○○○○○○○○○○
-Radius 3: ○○○○○○○○○○○○●●●●●●●○○○○○○○○○○○
-Radius 4: ○○○○○○○○○○○●●●●●●●●●○○○○○○○○○○
-Radius 5: ○○○○○○○○○○●●●●●●●●●●●○○○○○○○○○
-...continues until edges reached
 ```
 
 ## Technical Implementation
