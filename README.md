@@ -55,6 +55,16 @@ pio device monitor -e esp32c3
 
 **Test:** LEDs breathe → wave hand → donation effect + mode switch → check MQTT broker
 
+### 🗑️ Uninstallation
+To completely remove the project and PlatformIO:
+
+```bash
+curl -sSL https://raw.githubusercontent.com/munichmakerlab/donation-cube/main/scripts/uninstall.sh | bash
+```
+```bash
+wget -qO- https://raw.githubusercontent.com/munichmakerlab/donation-cube/main/scripts/uninstall.sh | bash
+```
+
 ## 🎨 Creating Custom LED Modes
 
 ### Quick Implementation
