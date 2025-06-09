@@ -14,25 +14,69 @@ def is_interactive_terminal():
     """Check if we're running in an interactive terminal"""
     return sys.stdin.isatty() and sys.stdout.isatty()
 
+def use_example_credentials():
+    """Use example credentials as fallback for non-interactive environments"""
+    script_dir = Path(__file__).parent.parent.parent  # Go up to project root
+    example_file = script_dir / "include" / "credentials.h.example"
+    credentials_file = script_dir / "include" / "credentials.h"
+    
+    if example_file.exists():
+        try:
+            # Copy example file to credentials.h
+            import shutil
+            shutil.copy2(example_file, credentials_file)
+            colored_print("✅ Using example credentials template", Colors.GREEN)
+            colored_print("📝 Edit include/credentials.h to configure your WiFi/MQTT settings", Colors.BLUE)
+            return True
+        except Exception as e:
+            colored_print(f"❌ Failed to copy example credentials: {e}", Colors.RED)
+            return False
+    else:
+        colored_print("❌ Example credentials file not found", Colors.RED)
+        return False
+
 def get_wifi_credentials():
-    """Get WiFi credentials from user input"""
+    """Get WiFi credentials from user input with EOF handling"""
     colored_print("\n📶 WiFi Configuration", Colors.BLUE, bold=True)
     colored_print("   Enter your WiFi network details for internet connectivity", Colors.BLUE)
+    
+    # Check if we're in an interactive environment first
+    if not is_interactive_terminal():
+        colored_print("⚠️  Non-interactive environment detected", Colors.YELLOW)
+        colored_print("   Using placeholder values - please edit manually later", Colors.BLUE)
+        return "YOUR_WIFI_SSID", "YOUR_WIFI_PASSWORD"
+    
     print()
     
-    # Get WiFi SSID
+    # Get WiFi SSID with EOF handling
     while True:
-        wifi_ssid = input(f"{Colors.BOLD}WiFi Network Name (SSID): {Colors.END}").strip()
-        if wifi_ssid:
-            break
-        colored_print("❌ WiFi SSID cannot be empty. Please try again.", Colors.RED)
+        try:
+            wifi_ssid = input(f"{Colors.BOLD}WiFi Network Name (SSID): {Colors.END}").strip()
+            if wifi_ssid:
+                break
+            colored_print("❌ WiFi SSID cannot be empty. Please try again.", Colors.RED)
+        except EOFError:
+            colored_print("\n⚠️  EOF detected - using placeholder values", Colors.YELLOW)
+            colored_print("   Please edit include/credentials.h manually", Colors.BLUE)
+            return "YOUR_WIFI_SSID", "YOUR_WIFI_PASSWORD"
+        except KeyboardInterrupt:
+            colored_print("\n👋 Setup cancelled by user", Colors.YELLOW)
+            sys.exit(0)
     
-    # Get WiFi Password (hidden input)
+    # Get WiFi Password (hidden input) with EOF handling
     while True:
-        wifi_password = getpass.getpass(f"{Colors.BOLD}WiFi Password: {Colors.END}")
-        if wifi_password:
-            break
-        colored_print("❌ WiFi password cannot be empty. Please try again.", Colors.RED)
+        try:
+            wifi_password = getpass.getpass(f"{Colors.BOLD}WiFi Password: {Colors.END}")
+            if wifi_password:
+                break
+            colored_print("❌ WiFi password cannot be empty. Please try again.", Colors.RED)
+        except EOFError:
+            colored_print("\n⚠️  EOF detected - using placeholder values", Colors.YELLOW)
+            colored_print("   Please edit include/credentials.h manually", Colors.BLUE)
+            return wifi_ssid, "YOUR_WIFI_PASSWORD"
+        except KeyboardInterrupt:
+            colored_print("\n👋 Setup cancelled by user", Colors.YELLOW)
+            sys.exit(0)
     
     # Confirmation
     colored_print(f"\n✅ WiFi Network: {wifi_ssid}", Colors.GREEN)
@@ -41,39 +85,78 @@ def get_wifi_credentials():
     return wifi_ssid, wifi_password
 
 def get_mqtt_credentials():
-    """Get MQTT broker credentials from user input"""
+    """Get MQTT broker credentials from user input with EOF handling"""
     colored_print("\n📡 MQTT Broker Configuration", Colors.BLUE, bold=True)
     colored_print("   MQTT enables donation tracking and remote monitoring", Colors.BLUE)
+    
+    # Check if we're in an interactive environment first
+    if not is_interactive_terminal():
+        colored_print("⚠️  Non-interactive environment detected", Colors.YELLOW)
+        colored_print("   Using placeholder values - please edit manually later", Colors.BLUE)
+        return "YOUR_MQTT_SERVER", 1883, "YOUR_MQTT_USER", "YOUR_MQTT_PASSWORD"
+    
     print()
     
-    # MQTT Server
-    mqtt_server = input(f"{Colors.BOLD}MQTT Server (e.g., broker.hivemq.com): {Colors.END}").strip()
-    if not mqtt_server:
-        mqtt_server = "broker.hivemq.com"
-        colored_print(f"   Using default: {mqtt_server}", Colors.YELLOW)
+    # MQTT Server with EOF handling
+    try:
+        mqtt_server = input(f"{Colors.BOLD}MQTT Server (e.g., broker.hivemq.com): {Colors.END}").strip()
+        if not mqtt_server:
+            mqtt_server = "broker.hivemq.com"
+            colored_print(f"   Using default: {mqtt_server}", Colors.YELLOW)
+    except EOFError:
+        colored_print("\n⚠️  EOF detected - using placeholder values", Colors.YELLOW)
+        colored_print("   Please edit include/credentials.h manually", Colors.BLUE)
+        return "YOUR_MQTT_SERVER", 1883, "YOUR_MQTT_USER", "YOUR_MQTT_PASSWORD"
+    except KeyboardInterrupt:
+        colored_print("\n👋 Setup cancelled by user", Colors.YELLOW)
+        sys.exit(0)
     
-    # MQTT Port
+    # MQTT Port with EOF handling
+    mqtt_port = 1883
     while True:
-        port_input = input(f"{Colors.BOLD}MQTT Port [1883]: {Colors.END}").strip()
-        if not port_input:
+        try:
+            port_input = input(f"{Colors.BOLD}MQTT Port [1883]: {Colors.END}").strip()
+            if not port_input:
+                mqtt_port = 1883
+                break
+            try:
+                mqtt_port = int(port_input)
+                if 1 <= mqtt_port <= 65535:
+                    break
+                else:
+                    colored_print("❌ Port must be between 1 and 65535", Colors.RED)
+            except ValueError:
+                colored_print("❌ Please enter a valid port number", Colors.RED)
+        except EOFError:
+            colored_print("\n⚠️  EOF detected - using default port 1883", Colors.YELLOW)
             mqtt_port = 1883
             break
-        try:
-            mqtt_port = int(port_input)
-            if 1 <= mqtt_port <= 65535:
-                break
-            else:
-                colored_print("❌ Port must be between 1 and 65535", Colors.RED)
-        except ValueError:
-            colored_print("❌ Please enter a valid port number", Colors.RED)
+        except KeyboardInterrupt:
+            colored_print("\n👋 Setup cancelled by user", Colors.YELLOW)
+            sys.exit(0)
     
-    # MQTT Username (optional)
-    mqtt_user = input(f"{Colors.BOLD}MQTT Username (optional): {Colors.END}").strip()
+    # MQTT Username (optional) with EOF handling
+    mqtt_user = ""
+    try:
+        mqtt_user = input(f"{Colors.BOLD}MQTT Username (optional): {Colors.END}").strip()
+    except EOFError:
+        colored_print("\n⚠️  EOF detected - using empty username", Colors.YELLOW)
+        mqtt_user = ""
+    except KeyboardInterrupt:
+        colored_print("\n👋 Setup cancelled by user", Colors.YELLOW)
+        sys.exit(0)
     
-    # MQTT Password (optional, only if username provided)
+    # MQTT Password (optional, only if username provided) with EOF handling
     mqtt_password = ""
     if mqtt_user:
-        mqtt_password = getpass.getpass(f"{Colors.BOLD}MQTT Password: {Colors.END}")
+        try:
+            mqtt_password = getpass.getpass(f"{Colors.BOLD}MQTT Password: {Colors.END}")
+        except EOFError:
+            colored_print("\n⚠️  EOF detected - using empty password", Colors.YELLOW)
+            mqtt_password = ""
+        except KeyboardInterrupt:
+            colored_print("\n👋 Setup cancelled by user", Colors.YELLOW)
+            sys.exit(0)
     
     colored_print(f"\n✅ MQTT Server: {mqtt_server}:{mqtt_port}", Colors.GREEN)
     if mqtt_user:
@@ -202,14 +285,21 @@ def setup_credentials():
     if check_credentials_exist():
         colored_print("⚠️  Existing credentials.h found!", Colors.YELLOW, bold=True)
         while True:
-            choice = input(f"{Colors.BOLD}Overwrite existing credentials? [y/N]: {Colors.END}").strip().lower()
-            if choice in ['n', '', 'no']:
-                colored_print("✅ Keeping existing credentials", Colors.GREEN)
+            try:
+                choice = input(f"{Colors.BOLD}Overwrite existing credentials? [y/N]: {Colors.END}").strip().lower()
+                if choice in ['n', '', 'no']:
+                    colored_print("✅ Keeping existing credentials", Colors.GREEN)
+                    return True
+                elif choice in ['y', 'yes']:
+                    break
+                else:
+                    colored_print("❌ Please enter y or n", Colors.RED)
+            except EOFError:
+                colored_print("\n⚠️  EOF detected - keeping existing credentials", Colors.YELLOW)
                 return True
-            elif choice in ['y', 'yes']:
-                break
-            else:
-                colored_print("❌ Please enter y or n", Colors.RED)
+            except KeyboardInterrupt:
+                colored_print("\n👋 Setup cancelled by user", Colors.YELLOW)
+                sys.exit(0)
     
     # Get credentials from user
     wifi_ssid, wifi_password = get_wifi_credentials()

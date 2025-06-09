@@ -83,7 +83,15 @@ def setup_platformio_environment():
         colored_print("   [2] Skip - I'll install it manually", Colors.YELLOW)
         colored_print("   [q] Quit setup", Colors.RED)
         
-        choice = input(f"\n{Colors.BOLD}Choose option [1/2/q]: {Colors.END}").strip().lower()
+        try:
+            choice = input(f"\n{Colors.BOLD}Choose option [1/2/q]: {Colors.END}").strip().lower()
+        except EOFError:
+            colored_print("\n⚠️  EOF detected - skipping PlatformIO installation", Colors.YELLOW)
+            colored_print("   Please install PlatformIO manually: pip install platformio", Colors.YELLOW)
+            return None
+        except KeyboardInterrupt:
+            colored_print("\n👋 Setup cancelled by user", Colors.YELLOW)
+            sys.exit(0)
         
         if choice == '1':
             pio_path = install_platformio_locally()
@@ -153,7 +161,14 @@ def select_build_targets(environments):
     colored_print(f"   [{len(environments) + 1}] Skip building", Colors.YELLOW)
     
     while True:
-        choice = input(f"\n{Colors.BOLD}Choose targets [0-{len(environments) + 1}]: {Colors.END}").strip()
+        try:
+            choice = input(f"\n{Colors.BOLD}Choose targets [0-{len(environments) + 1}]: {Colors.END}").strip()
+        except EOFError:
+            colored_print("\n⚠️  EOF detected - building all targets", Colors.YELLOW)
+            return [env['name'] for env in environments]
+        except KeyboardInterrupt:
+            colored_print("\n👋 Setup cancelled by user", Colors.YELLOW)
+            sys.exit(0)
         
         try:
             choice_num = int(choice)

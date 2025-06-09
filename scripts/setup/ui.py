@@ -90,15 +90,22 @@ def confirm_setup():
     show_menu()
     
     while True:
-        choice = input(f"\n{Colors.BOLD}Enter your choice [1/2/3/q]: {Colors.END}").strip().lower()
-        
-        if choice in ['1', '2', '3', 'q']:
-            return choice
-        
-        colored_print("\n❌ Invalid choice. Please select 1, 2, 3, or q.", Colors.RED)
-        time.sleep(1)
-        # Show menu again after invalid input
-        print()
+        try:
+            choice = input(f"\n{Colors.BOLD}Enter your choice [1/2/3/q]: {Colors.END}").strip().lower()
+            
+            if choice in ['1', '2', '3', 'q']:
+                return choice
+            
+            colored_print("\n❌ Invalid choice. Please select 1, 2, 3, or q.", Colors.RED)
+            time.sleep(1)
+            # Show menu again after invalid input
+            print()
+        except EOFError:
+            colored_print("\n⚠️  EOF detected - exiting setup", Colors.YELLOW)
+            return 'q'
+        except KeyboardInterrupt:
+            colored_print("\n👋 Setup cancelled by user", Colors.YELLOW)
+            return 'q'
         show_menu()
 
 def print_summary(wifi_ssid, mqtt_server, mqtt_port, mqtt_user):
