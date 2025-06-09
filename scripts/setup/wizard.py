@@ -33,6 +33,9 @@ def complete_setup_workflow():
     """Handle complete setup workflow"""
     success_stages = []
     
+    # Import the interactive check function
+    from config import is_interactive_terminal
+    
     # Stage 1: Credentials
     colored_print("\n🔑 Step 1: WiFi & MQTT Configuration", Colors.CYAN, bold=True)
     if setup_credentials():
@@ -40,16 +43,22 @@ def complete_setup_workflow():
         colored_print("✅ Credentials configured successfully!", Colors.GREEN, bold=True)
     else:
         colored_print("❌ Credentials setup failed", Colors.RED, bold=True)
-        # Ask if user wants to continue
-        while True:
-            cont = input(f"{Colors.BOLD}Continue without credentials? [y/N]: {Colors.END}").strip().lower()
-            if cont in ['n', '', 'no']:
-                colored_print("👋 Setup cancelled", Colors.YELLOW)
-                return False
-            elif cont in ['y', 'yes']:
-                break
-            else:
-                colored_print("❌ Please enter y or n", Colors.RED)
+        
+        # Handle non-interactive vs interactive differently
+        if not is_interactive_terminal():
+            colored_print("⚠️  Continuing without credentials configuration...", Colors.YELLOW)
+            colored_print("   You can configure credentials later with: python3 scripts/setup.py --config", Colors.BLUE)
+        else:
+            # Ask if user wants to continue (interactive mode only)
+            while True:
+                cont = input(f"{Colors.BOLD}Continue without credentials? [y/N]: {Colors.END}").strip().lower()
+                if cont in ['n', '', 'no']:
+                    colored_print("👋 Setup cancelled", Colors.YELLOW)
+                    return False
+                elif cont in ['y', 'yes']:
+                    break
+                else:
+                    colored_print("❌ Please enter y or n", Colors.RED)
     
     return build_and_flash_workflow()
 

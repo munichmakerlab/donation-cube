@@ -5,9 +5,14 @@ Handles credential input, validation, and file generation
 """
 
 import os
+import sys
 import getpass
 from pathlib import Path
 from ui import colored_print, Colors
+
+def is_interactive_terminal():
+    """Check if we're running in an interactive terminal"""
+    return sys.stdin.isatty() and sys.stdout.isatty()
 
 def get_wifi_credentials():
     """Get WiFi credentials from user input"""
@@ -163,7 +168,37 @@ def setup_credentials():
     """Complete credentials setup workflow"""
     colored_print("🔧 Setting up credentials...", Colors.CYAN, bold=True)
     
-    # Check if credentials already exist
+    # Check if we're in an interactive terminal
+    if not is_interactive_terminal():
+        colored_print("⚠️  Non-interactive terminal detected", Colors.YELLOW, bold=True)
+        
+        # Check if credentials already exist
+        if check_credentials_exist():
+            colored_print("✅ Using existing credentials.h file", Colors.GREEN)
+            return True
+        else:
+            # Try to copy example file as fallback
+            script_dir = Path(__file__).parent.parent.parent  # Go up to project root
+            example_file = script_dir / "include" / "credentials.h.example"
+            credentials_file = script_dir / "include" / "credentials.h"
+            
+            if example_file.exists():
+                try:
+                    import shutil
+                    shutil.copy2(example_file, credentials_file)
+                    colored_print("✅ Created credentials.h from example template", Colors.GREEN)
+                    colored_print("⚠️  Using default credentials - please configure later:", Colors.YELLOW)
+                    colored_print("   python3 scripts/setup.py --config", Colors.CYAN)
+                    return True
+                except Exception as e:
+                    colored_print(f"❌ Failed to copy example file: {e}", Colors.RED)
+            
+            colored_print("❌ No credentials file found and terminal is non-interactive", Colors.RED)
+            colored_print("   Please run setup in an interactive terminal to configure credentials:", Colors.YELLOW)
+            colored_print("   python3 scripts/setup.py --config", Colors.CYAN)
+            return False
+    
+    # Check if credentials already exist (interactive mode)
     if check_credentials_exist():
         colored_print("⚠️  Existing credentials.h found!", Colors.YELLOW, bold=True)
         while True:
