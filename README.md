@@ -4,7 +4,7 @@ Professional LED animation system with 6 modes, automatic switching, and MQTT mo
 
 ## 🎯 Overview
 
-**Hardware:** ESP32-C3/ESP8266 + WS2812B LEDs + TCRT5000 sensor  
+**Hardware:** ESP32-C3/ESP8266 + WS2812B LEDs + TCRT5000 sensor +  [Arduino DFPlayer](https://wiki.dfrobot.com/DFPlayer_Mini_SKU_DFR0299)
 **Modes:** Static Breathing | Wave Motion | Random Blink | Half Switch | Center Expansion | Chase Light  
 **Features:** Donation detection, auto mode switching, WiFi/MQTT monitoring, standalone mode
 
