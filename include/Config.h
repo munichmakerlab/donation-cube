@@ -5,11 +5,11 @@
 // Hardware-specific pin definitions
 #ifdef ESP8266
   // ESP8266 (Wemos D1 Mini) pin configuration
-  #define SENSOR_PIN  D2  // GPIO4 - TCRT5000 donation sensor
+  #define SENSOR_PIN  D5  // GPIO4 - TCRT5000 donation sensor
   #define DATA_PIN    D3  // GPIO0 - WS2812B LED strip data line
 #elif defined(ESP32)
   // ESP32-C3 (Seeed XIAO) pin configuration  
-  #define SENSOR_PIN  4   // GPIO4 - TCRT5000 donation sensor
+  #define SENSOR_PIN  5   // GPIO4 - TCRT5000 donation sensor
   #define DATA_PIN    3   // GPIO3 - WS2812B LED strip data line
 #else
   // Default fallback configuration
