@@ -4,7 +4,7 @@ Professional LED animation system with 6 modes, audio feedback, automatic switch
 
 ## 🎯 Overview
 
-**Hardware:** ESP32-C3/ESP8266 + WS2812B LEDs + TCRT5000 sensor + [DFPlayer Mini MP3 Player](https://wiki.dfrobot.com/DFPlayer_Mini_SKU_DFR0299)
+**Hardware:** ESP32-C3/ESP8266 + WS2812B LEDs + TCRT5000 sensor + DFPlayer Mini MP3 Player
 
 **Modes:** Static Breathing | Wave Motion | Random Blink | Half Switch | Center Expansion | Chase Light  
 
