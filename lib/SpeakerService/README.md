@@ -1,22 +1,34 @@
-# Speaker Service
+# SpeakerService
 
-High-level audio interface for the Donation Box project using DFPlayer Mini MP3 player.
+Professional audio interface for the Donation Box project using DFPlayer Mini MP3 player with robust startup and fallback mechanisms.
 
 ## Overview
 
-The SpeakerService provides a simple, high-level API for audio playback in the donation box. It wraps the DFPlayerService with donation-specific functionality and provides an easy-to-use interface for the main application.
+The SpeakerService provides a production-ready audio system for donation boxes. It features intelligent initialization with retry logic, boot loop protection, and graceful degradation when hardware is unavailable.
 
-## Features
+## ✨ Key Features
 
-- **Simple API**: Easy-to-use methods for common audio tasks
-- **Donation-specific**: Built-in donation sound handling
-- **Volume Control**: Simple volume management
-- **Error Resilient**: Graceful handling of hardware issues
-- **Mock Support**: Works without hardware for testing
+- **🔊 DFPlayer Mini Integration**: Full MP3 playback support
+- **🛡️ Robust Startup**: Boot loop protection with 3-attempt limit
+- **🔄 Smart Recovery**: Automatic restart on hardware failures
+- **🎚️ Production Ready**: Works with/without serial debug
+- **🎵 Donation Audio**: Automatic sound playback on donations
+- **📱 Volume Control**: Runtime volume adjustment (0-30)
+- **⚡ Platform Support**: ESP32, ESP8266, Arduino compatible
 
-## Hardware
+## Hardware Requirements
 
-This service uses the DFPlayer Mini MP3 player module. See the [DFPlayerService documentation](../DFPlayerService/README.md) for detailed hardware setup instructions.
+**DFPlayer Mini MP3 Player:**
+- VCC → 5V (stable power required)
+- GND → Ground
+- RX → ESP TX pin (GPIO4 ESP32, D1 ESP8266)  
+- TX → ESP RX pin (GPIO5 ESP32, D2 ESP8266)
+- Speaker → Audio output pins
+
+**SD Card:**
+- FAT32 formatted
+- MP3 files: 001.mp3, 002.mp3, 003.mp3, etc.
+- Donation sounds: configurable count in Config.h
 
 ## Usage
 
@@ -25,9 +37,67 @@ This service uses the DFPlayer Mini MP3 player module. See the [DFPlayerService 
 ```cpp
 #include "SpeakerService.hpp"
 
-SpeakerService speaker;
+SpeakerService* speakerService;
 
 void setup() {
+    speakerService = new SpeakerService();
+    
+    // Robust initialization with retry logic
+    bool success = speakerService->setup();
+    
+    if (success) {
+        Serial.println("Audio system ready!");
+        speakerService->playStartupSound();
+    } else {
+        Serial.println("Audio system unavailable - continuing without sound");
+        // System continues to work without audio
+    }
+}
+
+void loop() {
+    speakerService->loop(); // Handle DFPlayer communication
+}
+```
+
+### Donation Audio Integration
+
+```cpp
+// In your donation detection code
+void onDonationDetected() {
+    // Automatic random donation sound
+    speakerService->playDonationSound();
+    
+    // Or specific sound file
+    speakerService->playSound("003.mp3");
+    
+    // Or direct track number
+    speakerService->playTrack(3);
+}
+```
+
+### Volume Control
+
+```cpp
+// Set volume (0-30)
+speakerService->setVolume(15);
+
+// Runtime adjustment
+speakerService->volumeUp();
+speakerService->volumeDown();
+
+// Get current volume
+uint8_t currentVol = speakerService->getVolume();
+```
+
+### Production Configuration
+
+```cpp
+// Config.h settings
+#define DFPLAYER_VOLUME     15      // Default volume
+#define DONATION_SOUND_COUNT 5      // Number of sound files
+#define STARTUP_SOUND_FILE   1      // Startup sound
+#define ENABLE_SERIAL_DEBUG  0      // Production: no serial dependency
+```
     Serial.begin(115200);
     
     // Initialize speaker service

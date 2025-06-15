@@ -1,43 +1,51 @@
-# StaticMode Library
+# StaticMode
+
+Gentle breathing animation with white LEDs and integrated audio feedback for donation detection.
 
 ## Overview
-StaticMode provides a gentle breathing effect with white LEDs, creating a calm and soothing animation. The mode features smooth brightness transitions that mimic natural breathing patterns.
 
-## Purpose
-- **Breathing animation** with smooth brightness transitions
-- **Calming effect** using gentle white LED pulsing
-- **Variable speed** with faster breathing during donation effects
-- **Professional appearance** suitable for donation box environments
+StaticMode provides a professional breathing effect that creates a calm, welcoming atmosphere. When donations are detected, it accelerates the breathing pattern and plays audio feedback for 3 seconds.
 
-## Animation Description
-- **Normal state**: Gentle breathing effect with white LEDs
-- **Donation effect**: Faster breathing animation for 3 seconds
-- **Pattern**: All LEDs breathe in unison from dim to bright and back
-- **Color**: Pure white with brightness variations only
+## ✨ Features
 
-## Visual Effect Description
+- **🫁 Breathing Animation**: Smooth, natural breathing pattern
+- **🎵 Audio Integration**: Automatic donation sound playback  
+- **⚡ Dynamic Speed**: Faster breathing during donation effects
+- **⚪ Pure White LEDs**: Professional, clean appearance
+- **🎯 3-Second Effects**: Perfect timing for donation acknowledgment
 
-### Normal Breathing
+## Animation Behavior
+
+### Normal State
+- **Pattern**: Gentle breathing effect with all LEDs
+- **Color**: Pure white with smooth brightness transitions
+- **Speed**: Calm, relaxing pace (normal interval)
+- **Range**: Dims to ~20% brightness, peaks at 100%
+
+### Donation Effect (3 seconds)
+- **Pattern**: Accelerated breathing animation
+- **Audio**: Random donation sound from SD card
+- **Speed**: Faster breathing for visual impact
+- **Auto-end**: Returns to normal speed after effect
+
+## Visual Pattern
+
 ```
-LED Brightness over time:
-    ▲
+Normal Breathing:
+    ▲ Brightness
 255 |     ●●●     ●●●
     |   ●     ●   ●     ●
     | ●         ● ●       ●
  50 |●           ●         ●
     └─────────────────────────► Time
-    Smooth, gentle transitions
-```
-
-### Donation Breathing
-```
-LED Brightness over time:
-    ▲
+    
+Donation Breathing:
+    ▲ Brightness  
 255 |●●●●●●●●●●●●●●●●●●●●●●●
-    |                         
-    |                         
- 50 |                         
+    |Faster transitions + Audio
+ 50 |●●●●●●●●●●●●●●●●●●●●●●●
     └─────────────────────────► Time
+```
     Fast, excited breathing
 ```
 

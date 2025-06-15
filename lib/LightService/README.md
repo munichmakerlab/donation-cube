@@ -1,33 +1,38 @@
-# LightService Library
+# LightService
+
+Professional WS2812B LED strip controller with FastLED integration for donation box animations.
 
 ## Overview
-LightService provides a clean interface for controlling WS2812B LED strips using the FastLED library. It handles LED color management, brightness control, and provides convenient methods for LED manipulation.
 
-## Purpose
-- **FastLED wrapper** with simplified interface
-- **Individual LED control** with CRGB color management
-- **Global brightness control** for all LEDs
-- **Hardware abstraction** for LED strip operations
-- **Automatic LED updates** and display management
+LightService provides a production-ready interface for controlling WS2812B LED strips using the FastLED library. It offers simplified LED management, brightness control, and hardware abstraction specifically designed for donation box applications.
 
-## Public Functions
+## ✨ Key Features
 
-### Constructor
+- **💡 FastLED Integration**: Full WS2812B strip support
+- **🎨 Color Management**: CRGB color space with professional control
+- **🎚️ Brightness Control**: Global and individual LED brightness
+- **⚡ Hardware Abstraction**: Platform-independent LED control
+- **🔧 Auto Configuration**: Reads settings from Config.h
+- **📱 Real-time Updates**: Immediate LED strip updates
+
+## Hardware Requirements
+
+**WS2812B LED Strip:**
+- VCC → 5V (stable power supply recommended)
+- GND → Ground
+- DIN → GPIO pin (GPIO3 ESP32, GPIO12 ESP8266)
+- **Important**: 5V power for stable operation
+- **Note**: LED count configurable in Config.h (NUM_LEDS)
+
+## Configuration
+
 ```cpp
-LightService()
+// Config.h settings
+#define NUM_LEDS            6       // Number of LEDs in strip
+#define DATA_PIN            3       // ESP32: GPIO3, ESP8266: GPIO12  
+#define LED_TYPE            WS2812B // FastLED LED type
+#define MAX_BRIGHTNESS      255     // Maximum brightness level
 ```
-**Purpose**: Initialize LED service with default settings  
-**Usage**: Create instance before calling setup()
-
-### Setup and Initialization
-```cpp
-void setup()
-```
-**Purpose**: Initialize FastLED library and LED strip  
-**Must call**: Before using any LED functions  
-**Action**: Configures LED strip with DATA_PIN and NUM_LEDS from Config.h
-
-### Brightness Control
 ```cpp
 void setBrightness(uint8_t brightness)
 ```

@@ -1,14 +1,39 @@
-# Controller Library
+# Controller
+
+Central coordination system managing LED modes, sensor integration, and audio feedback for the donation box.
 
 ## Overview
-Controller manages the LED animation system, handling mode switching, sensor integration, and automatic mode progression. It coordinates between different LED modes and ensures smooth transitions after donation effects.
 
-## Purpose
-- **Mode management** with automatic and manual switching
-- **Sensor integration** for donation detection
-- **Mode lifecycle control** (activation, deactivation, setup)
-- **Automatic progression** through available modes
-- **Centralized coordination** between services and modes
+The Controller acts as the brain of the donation box system, orchestrating mode transitions, handling donation detection, and ensuring seamless audio-visual feedback. It provides intelligent mode management with automatic progression after donation effects.
+
+## ✨ Key Features
+
+- **🎛️ Mode Management**: Automatic and manual mode switching
+- **📡 Sensor Integration**: Real-time donation detection with debouncing
+- **🎵 Audio Coordination**: Integrated audio feedback via SpeakerService
+- **⏱️ Effect Timing**: Precise 3-second donation effects
+- **🔄 Auto Progression**: Automatic mode switching after donations
+- **📊 State Tracking**: Mode lifecycle and timing management
+- **🎯 Professional Control**: Smooth transitions and coordination
+
+## Architecture
+
+```
+Controller
+├── SensorService (donation detection)
+├── SpeakerService (audio feedback)  
+├── Mode Array [StaticMode, WaveMode, BlinkMode, ...]
+└── Current Active Mode
+```
+
+## Core Functionality
+
+### Mode Lifecycle Management
+1. **Registration**: Add modes during setup
+2. **Activation**: Setup and start mode animation
+3. **Runtime**: Continuous loop execution
+4. **Effect Handling**: Donation effect coordination
+5. **Deactivation**: Clean shutdown and mode switch
 
 ## Public Functions
 

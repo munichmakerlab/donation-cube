@@ -1,33 +1,62 @@
-# AbstractMode Library
+# AbstractMode
+
+Base class foundation for all LED animation modes with integrated audio feedback and effect management.
 
 ## Overview
-AbstractMode provides the base class for all LED animation modes in the donation box system. It defines the essential interface and lifecycle management for LED effects with donation-triggered animations.
 
-## Purpose
-- **Base class** for all LED animation modes
-- **Donation effect management** with automatic timing and lifecycle
-- **Mode metadata** system with name, description, author, and version
-- **Service access** to LightService and SpeakerService
-- **Standard lifecycle** for setup, loop, and donation handling
+AbstractMode provides the standardized foundation for all LED animation modes in the donation box system. It handles donation effect lifecycle, audio integration, metadata management, and ensures consistent behavior across all modes.
 
-## Public Functions
+## ✨ Core Features
 
-### Constructor
+- **🏗️ Base Class Pattern**: Standard foundation for all modes
+- **⏱️ Effect Management**: Automatic 3-second donation effect timing
+- **🎵 Audio Integration**: Built-in SpeakerService coordination
+- **📋 Mode Metadata**: Name, description, author, version tracking
+- **🔄 Lifecycle Control**: Setup, loop, activation, deactivation
+- **🎯 Donation Handling**: Standardized donation trigger interface
+
+## Architecture Pattern
+
 ```cpp
-AbstractMode(LightService* lightService, SpeakerService* speakerService, 
-            const String& name, const String& description, 
-            const String& author, const String& version)
+class YourMode : public AbstractMode {
+public:
+    YourMode(LightService* light, SpeakerService* speaker) 
+        : AbstractMode(light, speaker, 3000, // 3s effect duration
+                      "Your Mode", "Description", "Author", "v1.0.0") {}
+                      
+    void setup() override;           // Initialize animation
+    void loop() override;            // Main animation loop  
+    void donationTriggered() override; // Handle donation
+};
 ```
-**Purpose**: Initialize mode with services and metadata  
-**Parameters**: 
-- `lightService` - LED control service
-- `speakerService` - Audio playback service  
-- `name` - Display name of the mode
-- `description` - Brief description of the effect
-- `author` - Creator name
-- `version` - Version string (e.g., "v1.0.0")
 
-### Donation Effect Management
+## Essential Methods for Implementation
+
+### Required Override Methods
+```cpp
+virtual void setup() = 0;
+virtual void loop() = 0; 
+virtual void donationTriggered() = 0;
+```
+
+### Donation Effect Pattern
+```cpp
+void YourMode::donationTriggered() {
+    startDonationEffect();              // REQUIRED: Start timing
+    speakerService->playDonationSound(); // REQUIRED: Audio feedback
+    // Your custom donation animation changes
+}
+
+void YourMode::loop() {
+    // CRITICAL: Auto-end donation effect
+    if (isDonationEffectActive() && 
+        millis() - getDonationStartTime() >= getEffectDuration()) {
+        endDonationEffect(); // Triggers mode switch
+        return;
+    }
+    // Your animation logic here
+}
+```
 ```cpp
 void startDonationEffect()
 ```

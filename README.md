@@ -1,37 +1,70 @@
-# 🎁 Modular Donation Box - LED Controller
+# 🎁 Modular Donation Box - Smart LED & Audio Controller
 
-Professional LED animation system with 6 modes, automatic switching, and MQTT monitoring.
+Professional LED animation system with 6 modes, audio feedback, automatic switching, sensor debouncing, and MQTT monitoring.
 
 ## 🎯 Overview
 
-**Hardware:** ESP32-C3/ESP8266 + WS2812B LEDs + TCRT5000 sensor +  [Arduino DFPlayer](https://wiki.dfrobot.com/DFPlayer_Mini_SKU_DFR0299)
+**Hardware:** ESP32-C3/ESP8266 + WS2812B LEDs + TCRT5000 sensor + DFPlayer Mini MP3 Player
 **Modes:** Static Breathing | Wave Motion | Random Blink | Half Switch | Center Expansion | Chase Light  
-**Features:** Donation detection, auto mode switching, WiFi/MQTT monitoring, standalone mode
+**Features:** Donation detection with audio feedback, auto mode switching, WiFi/MQTT monitoring, robust startup, standalone mode
 
 ### Wiring
 ```
-LED Strip: VCC→5V, GND→GND, DIN→GPIO8
-Sensor:    VCC→3.3V, GND→GND, OUT→GPIO2
+LED Strip:    VCC→5V, GND→GND, DIN→GPIO3 (ESP32) / GPIO12 (ESP8266)
+Sensor:       VCC→3.3V, GND→GND, OUT→GPIO2 (ESP32) / GPIO14 (ESP8266)  
+DFPlayer:     VCC→5V, GND→GND, RX→GPIO4, TX→GPIO5 (ESP32) / RX→D1, TX→D2 (ESP8266)
+Speaker:      Connect to DFPlayer Mini audio output
+SD Card:      Insert into DFPlayer with MP3 files (001.mp3, 002.mp3, etc.)
+```
+
+### New Features ✨
+- **🔊 Audio Feedback**: DFPlayer Mini integration with donation sounds
+- **🛡️ Sensor Debouncing**: 500ms cooldown prevents false triggers
+- **🔄 Robust Startup**: Smart restart mechanism with fallback modes
+- **🎚️ Production Mode**: Serial debug can be disabled for standalone operation
+- **⚡ Boot Loop Protection**: Automatic recovery from hardware issues
+
+## � Configuration Options
+
+### Production vs Debug Mode
+```cpp
+// include/Config.h
+#define ENABLE_SERIAL_DEBUG 0  // Production: No serial dependency
+#define ENABLE_SERIAL_DEBUG 1  // Debug: Full serial output
+```
+
+### Audio Configuration
+```cpp
+#define DFPLAYER_VOLUME     15              // Default volume (0-30)
+#define DONATION_SOUND_COUNT 5              // Number of sound files
+#define STARTUP_SOUND_FILE   1              // Startup sound
+```
+
+### Sensor Timing
+```cpp
+#define SENSOR_COOLDOWN_MS  500             // Debounce time between detections
 ```
 
 ## 📡 MQTT Topics & Standalone Mode
 
 ### WiFi/MQTT Mode (Default)
-- `donation-box/{clientId}/donations` - Events  
-- `donation-box/{clientId}/mode` - Mode changes  
-- `donation-box/{clientId}/heartbeat` - Health (30s)
+- `donation-box/{clientId}/donations` - Donation events with audio feedback
+- `donation-box/{clientId}/mode` - Mode changes with timing info
+- `donation-box/{clientId}/heartbeat` - System health (30s intervals)
+- `donation-box/{clientId}/audio` - Audio system status
 
 ### Standalone Mode (WiFi-Free)
 When WiFi is disabled during setup, the system operates as a pure LED controller:
 - ✅ All LED modes work normally
-- ✅ Donation detection works
+- ✅ Donation detection with sensor debouncing
+- ✅ Audio feedback on donations
 - ✅ Automatic mode switching works
-- ✅ Sensor functionality works
+- ✅ Robust startup without dependencies
 - ❌ No WiFi connection
 - ❌ No MQTT monitoring
 - ❌ No remote control
 
-All events are logged to serial output for debugging. Perfect for offline installations or environments without WiFi access.
+All events are logged to serial output for debugging (if ENABLE_SERIAL_DEBUG = 1). Perfect for offline installations or environments without WiFi access.
 
 ## 🚀 Installation & Quick Start
 
@@ -113,7 +146,7 @@ void YourMode::loop() {
 
 void YourMode::donationTriggered() {
     startDonationEffect(); // REQUIRED
-    // Optional: speakerService->playSound()
+    speakerService->playDonationSound(); // REQUIRED: Audio feedback
     // Modify animation using effectActive variable
 }
 ```
@@ -136,10 +169,14 @@ float breath = (sin(millis() / 1000.0) + 1.0) / 2.0; // Breathing
 
 ## 🔧 Troubleshooting
 
-**LEDs not working:** Check 5V power, GPIO8 connection, ground, WS2812B compatibility  
-**Sensor issues:** Adjust sensitivity pot, check 3.3V power, test positioning  
+**LEDs not working:** Check 5V power, GPIO connection, ground, WS2812B compatibility  
+**Sensor issues:** Adjust sensitivity pot, check 3.3V power, test positioning, verify 500ms cooldown  
+**Audio issues:** Check DFPlayer connections, SD card with 001.mp3-005.mp3 files, 5V power  
+**Boot loops:** Check serial debug setting (ENABLE_SERIAL_DEBUG), hardware connections  
 **WiFi/MQTT issues:** Verify credentials, network access, or use standalone mode  
-**Build errors:** `pio lib install FastLED`, verify platformio.ini, check includes
+**Build errors:** `pio lib install FastLED DFRobotDFPlayerMini`, verify platformio.ini  
+
+**After flashing works, but not after restart:** Set `ENABLE_SERIAL_DEBUG = 0` in Config.h for production use
 
 ## 🤝 Contributing
 
@@ -151,18 +188,28 @@ float breath = (sin(millis() / 1000.0) + 1.0) / 2.0; // Breathing
 ## 📚 Architecture
 
 **Services:** AbstractMode, Controller, LightService, SensorService, SpeakerService, MqttService  
-**Modes:** Static, Wave, Blink, Half, Center, Chase  
-**Dependencies:** FastLED ≥3.6.0, PubSubClient (network mode only)
+**Modes:** Static, Wave, Blink, Half, Center, Chase (all with audio feedback)  
+**Dependencies:** FastLED ≥3.6.0, DFRobotDFPlayerMini ≥1.0.6, PubSubClient (network mode only)
 
 ```
 src/main.cpp → Controller → [6 Modes] → LightService → WS2812B
-             → SensorService → TCRT5000
+             → SensorService → TCRT5000 (with debouncing)
+             → SpeakerService → DFPlayer Mini → Speaker/MP3
              → MqttService → WiFi/MQTT (optional)
 ```
+
+**Key Features:**
+- **Modular Design**: Each service is independent and testable
+- **Robust Startup**: Boot loop protection and graceful degradation
+- **Audio Integration**: Every mode plays donation sounds automatically  
+- **Sensor Debouncing**: Prevents false triggers with 500ms cooldown
+- **Production Ready**: Serial debug can be disabled for standalone operation
 
 **Compilation Modes:**
 - `ENABLE_WIFI = 1`: Full network functionality (default)
 - `ENABLE_WIFI = 0`: Standalone LED controller (WiFi/MQTT disabled)
+- `ENABLE_SERIAL_DEBUG = 1`: Full debug output (development)
+- `ENABLE_SERIAL_DEBUG = 0`: No serial dependency (production)
 
 ---
 *Professional LED controller for donation boxes* • *[Friedjof](https://github.com/Friedjof)* • *MIT License*

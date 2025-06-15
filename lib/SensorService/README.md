@@ -1,53 +1,76 @@
-# SensorService Library
+# SensorService
+
+Professional donation detection using TCRT5000 infrared sensor with advanced debouncing and edge detection.
 
 ## Overview
-SensorService provides donation detection using a TCRT5000 infrared reflection sensor. It features edge detection, debouncing, and reliable state monitoring for triggering donation effects.
 
-## Purpose
-- **Donation detection** using TCRT5000 infrared sensor
-- **Edge detection** for rising and falling sensor transitions
-- **Debouncing** to prevent false triggers
-- **State monitoring** for continuous sensor status checking
-- **Professional sensor handling** with INPUT_PULLUP configuration
+The SensorService provides rock-solid donation detection for the donation box project. It features intelligent edge detection with 500ms debouncing to prevent false triggers from vibrations, electrical noise, or rapid movements.
 
-## Public Functions
+## ✨ Key Features
+
+- **🛡️ Advanced Debouncing**: 500ms cooldown prevents false triggers
+- **⚡ Edge Detection**: Precise rising/falling edge detection
+- **🔧 INPUT_PULLUP**: Professional GPIO configuration  
+- **📊 State Monitoring**: Continuous sensor status tracking
+- **🎯 Donation Focus**: Optimized for donation box use cases
+- **🐛 Debug Support**: Detailed logging with cooldown tracking
+
+## Hardware Requirements
+
+**TCRT5000 Infrared Reflection Sensor:**
+- VCC → 3.3V (stable power)
+- GND → Ground  
+- OUT → GPIO pin (GPIO2 ESP32, GPIO14 ESP8266)
+- Sensitivity potentiometer for distance adjustment
+
+**Optimal Placement:**
+- 2-5cm detection distance
+- Perpendicular to donation slot
+- Protected from ambient light
+- Stable mounting to prevent vibrations
+
+## Public API
 
 ### Constructor
 ```cpp
 SensorService(uint8_t pin)
 ```
-**Purpose**: Initialize sensor service with specified pin  
-**Parameters**: `pin` - GPIO pin connected to sensor output  
-**Usage**: Pass SENSOR_PIN from Config.h during construction
+**Purpose**: Initialize sensor service with specified GPIO pin  
+**Parameters**: `pin` - GPIO pin connected to TCRT5000 output  
+**Example**: `SensorService sensor(SENSOR_PIN);`
 
-### Setup and Initialization
+### Initialization
 ```cpp
 void setup()
 ```
-**Purpose**: Configure sensor pin as INPUT_PULLUP  
-**Must call**: Before using sensor functions  
-**Action**: Sets up GPIO pin for sensor reading
+**Purpose**: Configure GPIO pin and initialize debouncing  
+**Required**: Must call before using sensor functions  
+**Action**: Sets INPUT_PULLUP mode and initializes cooldown timer
 
-### Main Update
+### Update Loop
 ```cpp
 void loop()
 ```
-**Purpose**: Update sensor state and handle debouncing  
-**Must call**: In main loop for proper edge detection  
-**Frequency**: Call every loop iteration for accurate detection
+**Purpose**: Process sensor readings with debouncing logic  
+**Required**: Call in main loop for proper edge detection  
+**Frequency**: Every main loop iteration for accurate timing
 
-### Edge Detection
+### Edge Detection (Primary Methods)
 ```cpp
 bool risingEdge()
 ```
-**Purpose**: Detect transition from inactive to active (donation detected)  
-**Returns**: `true` if sensor just became active (rising edge detected)  
-**Usage**: Primary method for donation detection
+**Purpose**: Detect donation placement (HIGH→LOW transition)  
+**Returns**: `true` if donation just detected (with 500ms cooldown)  
+**Usage**: Primary method for triggering donation effects  
+**Debouncing**: Automatic 500ms cooldown between detections
 
 ```cpp
 bool fallingEdge()
 ```
-**Purpose**: Detect transition from active to inactive (object removed)  
+**Purpose**: Detect donation removal (LOW→HIGH transition)  
+**Returns**: `true` if object just removed (with 500ms cooldown)  
+**Usage**: Optional cleanup or logging  
+**Debouncing**: Same 500ms cooldown system
 **Returns**: `true` if sensor just became inactive (falling edge detected)  
 **Usage**: Detect when donation object is removed
 
