@@ -8,7 +8,7 @@ Professional LED animation system with 6 modes, audio feedback, automatic switch
 **Modes:** Static Breathing | Wave Motion | Random Blink | Half Switch | Center Expansion | Chase Light  
 **Features:** Donation detection with audio feedback, auto mode switching, WiFi/MQTT monitoring, robust startup, standalone mode
 
-![Donation Cube](/media/donation-cube_small.png)_
+![Donation Cube](/media/donation-cube_small.png)
 
 ### Wiring
 ```
