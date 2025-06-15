@@ -4,8 +4,10 @@ Professional LED animation system with 6 modes, audio feedback, automatic switch
 
 ## 🎯 Overview
 
-**Hardware:** ESP32-C3/ESP8266 + WS2812B LEDs + TCRT5000 sensor + DFPlayer Mini MP3 Player
+**Hardware:** ESP32-C3/ESP8266 + WS2812B LEDs + TCRT5000 sensor + [DFPlayer Mini MP3 Player](https://wiki.dfrobot.com/DFPlayer_Mini_SKU_DFR0299)
+
 **Modes:** Static Breathing | Wave Motion | Random Blink | Half Switch | Center Expansion | Chase Light  
+
 **Features:** Donation detection with audio feedback, auto mode switching, WiFi/MQTT monitoring, robust startup, standalone mode
 
 ![Donation Cube](/media/donation-cube_small.png)
@@ -212,6 +214,14 @@ src/main.cpp → Controller → [6 Modes] → LightService → WS2812B
 - `ENABLE_WIFI = 0`: Standalone LED controller (WiFi/MQTT disabled)
 - `ENABLE_SERIAL_DEBUG = 1`: Full debug output (development)
 - `ENABLE_SERIAL_DEBUG = 0`: No serial dependency (production)
+
+## Sources and Credits
+- **[DFPlayer_Mini_SKU_DFR0299](https://wiki.dfrobot.com/DFPlayer_Mini_SKU_DFR0299)** - MP3 player module
+- **[DFRobotDFPlayerMini](https://registry.platformio.org/libraries/dfrobot/DFRobotDFPlayerMini)** - MP3 playback library
+- **[FastLED](https://fastled.io/docs/index.html)** - LED control library
+- **[PubSubClient](https://pubsubclient.knolleary.net/api)** - MQTT client library
+- **[ESP8266 Wemos D1 Mini](https://lastminuteengineers.com/wemos-d1-mini-pinout-reference)** - Pinout reference
+- **[ESP32-C3](https://docs.espressif.com/projects/esp-idf/en/latest/esp32c3/get-started/index.html)** - ESP32-C3 documentation
 
 ---
 *Professional LED controller for donation boxes* • *[Friedjof](https://github.com/Friedjof)* • *MIT License*
