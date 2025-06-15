@@ -224,4 +224,4 @@ src/main.cpp → Controller → [6 Modes] → LightService → WS2812B
 - **[ESP32-C3](https://docs.espressif.com/projects/esp-idf/en/latest/esp32c3/get-started/index.html)** - ESP32-C3 documentation
 
 ---
-*Professional LED controller for donation boxes* • *[Friedjof](https://github.com/Friedjof)* • *MIT License*
+*Professional LED controller for donation boxes* • *[Friedjof](https://github.com/Friedjof)* • *GNU GENERAL PUBLIC LICENSE v3.0*
