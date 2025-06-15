@@ -5,7 +5,7 @@
 ENV = esp32c3 #wemos_d1_mini
 
 # PlatformIO Commands
-PIO = ~/.platformio/penv/bin/platformio
+PIO = pio
 
 # Default Target
 .DEFAULT_GOAL := build

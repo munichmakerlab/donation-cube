@@ -24,6 +24,9 @@ void CenterMode::donationTriggered() {
     Serial.println("[CenterMode] Donation detected - starting fast expansion effect");
     startDonationEffect();
     
+    // Play donation sound
+    speakerService->playDonationSound();
+    
     // Speed up expansion during donation
     currentInterval = fastInterval;
     

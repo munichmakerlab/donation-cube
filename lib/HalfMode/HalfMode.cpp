@@ -32,11 +32,11 @@ void HalfMode::donationTriggered() {
     // Start donation effect
     startDonationEffect();
     
+    // Play donation sound
+    speakerService->playDonationSound();
+    
     // Speed up switching
     currentInterval = fastInterval;
-    
-    // Play sound
-    speakerService->playSound("switch.mp3");
 }
 
 void HalfMode::loop() {

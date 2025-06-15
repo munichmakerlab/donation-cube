@@ -5,6 +5,7 @@
 
 #include "AbstractMode.hpp"
 #include "SensorService.hpp"
+#include "SpeakerService.hpp"
 
 #define MAX_MODES 10  // Maximum number of modes
 
@@ -14,14 +15,17 @@ class Controller {
         uint8_t modeCount = 0;
         uint8_t currentModeIndex = 0;
 
+        uint64_t lastSensorCheck = 0; // Track last mode switch time
+
         SensorService* sensorService;
+        SpeakerService* speakerService;
 
         void switchMode(uint8_t index);
         void switchNextMode();
         
     public:
-        Controller(SensorService* sensorService)
-            : sensorService(sensorService) {}
+        Controller(SensorService* sensorService, SpeakerService* speakerService)
+            : sensorService(sensorService), speakerService(speakerService) {}
 
         void addMode(AbstractMode *mode);
         void switchToNextMode(); // Public method to manually switch modes

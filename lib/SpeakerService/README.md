@@ -1,177 +1,142 @@
-# SpeakerService Library
+# Speaker Service
+
+High-level audio interface for the Donation Box project using DFPlayer Mini MP3 player.
 
 ## Overview
-SpeakerService provides audio playback functionality for the donation box system. Currently implemented as a mock service with Serial output, designed for future integration with audio hardware like DFPlayer Mini.
 
-## Purpose
-- **Audio feedback** for donation events
-- **Sound file management** with named audio files
-- **Random sound selection** for variety
-- **Mock implementation** ready for hardware integration
-- **Future-proof interface** for easy audio hardware addition
+The SpeakerService provides a simple, high-level API for audio playback in the donation box. It wraps the DFPlayerService with donation-specific functionality and provides an easy-to-use interface for the main application.
 
-## Public Functions
+## Features
 
-### Constructor
-```cpp
-SpeakerService()
-```
-**Purpose**: Initialize speaker service  
-**Usage**: Create instance before calling setup()
+- **Simple API**: Easy-to-use methods for common audio tasks
+- **Donation-specific**: Built-in donation sound handling
+- **Volume Control**: Simple volume management
+- **Error Resilient**: Graceful handling of hardware issues
+- **Mock Support**: Works without hardware for testing
 
-### Setup and Initialization
-```cpp
-void setup()
-```
-**Purpose**: Initialize audio hardware (currently mock)  
-**Must call**: Before using audio functions  
-**Future**: Will configure DFPlayer Mini or similar audio module
+## Hardware
 
-### Sound Playback
-```cpp
-void playSound(const String& soundFile)
-```
-**Purpose**: Play specific audio file  
-**Parameters**: `soundFile` - Name of audio file to play (e.g., "donation.mp3")  
-**Current**: Prints sound name to Serial monitor  
-**Future**: Will play actual audio file
+This service uses the DFPlayer Mini MP3 player module. See the [DFPlayerService documentation](../DFPlayerService/README.md) for detailed hardware setup instructions.
 
-```cpp
-void playRandomSound()
-```
-**Purpose**: Play random sound from predefined collection  
-**Current**: Prints random sound selection to Serial  
-**Future**: Will randomly select and play audio file
-
-## Usage Examples
+## Usage
 
 ### Basic Setup
-```cpp
-SpeakerService* speakerService = new SpeakerService();
-speakerService->setup();
-```
 
-### Play Specific Sound
 ```cpp
-// Play donation sound
-speakerService->playSound("donation.mp3");
+#include "SpeakerService.hpp"
 
-// Play mode-specific sounds
-speakerService->playSound("wave.mp3");
-speakerService->playSound("blink.mp3");
-speakerService->playSound("chase.mp3");
-```
+SpeakerService speaker;
 
-### Random Sound Selection
-```cpp
-// Play random sound for variety
-speakerService->playRandomSound();
-```
-
-### Integration with Modes
-```cpp
-class MyMode : public AbstractMode {
-    void donationTriggered() override {
-        startDonationEffect();
-        
-        // Play mode-specific sound
-        speakerService->playSound("mymode.mp3");
-        
-        // Or play random sound
-        // speakerService->playRandomSound();
-    }
-};
-```
-
-### Complete Integration Example
-```cpp
 void setup() {
-    speakerService->setup();
-    Serial.println("Speaker service initialized");
-}
-
-void onDonationDetected() {
-    Serial.println("*** DONATION DETECTED! ***");
+    Serial.begin(115200);
     
-    // Trigger visual effect
-    currentMode->donationTriggered();
-    
-    // Play audio feedback
-    speakerService->playSound("donation_success.mp3");
-}
-
-void onModeSwitch(const String& modeName) {
-    Serial.println("Switching mode to: " + modeName);
-    
-    // Play mode-specific intro sound
-    if (modeName == "Wave Motion") {
-        speakerService->playSound("wave_intro.mp3");
-    } else if (modeName == "Static Breathing") {
-        speakerService->playSound("breath_intro.mp3");
-    } else {
-        // Play generic mode switch sound
-        speakerService->playSound("mode_switch.mp3");
+    // Initialize speaker service
+    if (speaker.setup()) {
+        Serial.println("Speaker service ready");
+        
+        // Optional: Enable debug output
+        speaker.enableDebug(true);
+        
+        // Set volume
+        speaker.setVolume(15);
     }
 }
+
+void loop() {
+    // Call regularly for maintenance
+    speaker.loop();
+    
+    // Your other code here
+}
 ```
 
-## Current Implementation (Mock)
-The service currently provides Serial output for debugging:
+### Playing Sounds
 
-```
-[SPEAKER] Playing sound: donation.mp3
-[SPEAKER] Playing random sound: cheer.mp3
-[SPEAKER] Audio system ready
-```
+```cpp
+// Play donation sound (random from collection)
+speaker.playDonationSound();
 
-## Future Hardware Integration
+// Play random sound (alias for donation sound)
+speaker.playRandomSound();
 
-### Planned Audio Hardware
-- **DFPlayer Mini**: MP3 module with SD card support
-- **I2S Audio**: High-quality digital audio output
-- **Simple Buzzer**: Basic beep sounds for minimal setups
+// Play specific sound file by number
+speaker.playSound("3");  // Plays 003.mp3
 
-### Expected Audio Files
-```
-sounds/
-├── donation.mp3          # Main donation sound
-├── mode_switch.mp3       # Mode change sound
-├── wave.mp3             # Wave mode sound
-├── blink.mp3            # Blink mode sound
-├── chase.mp3            # Chase mode sound
-├── static.mp3           # Static mode sound
-├── center.mp3           # Center mode sound
-├── half.mp3             # Half mode sound
-├── cheer.mp3            # Random sound 1
-├── success.mp3          # Random sound 2
-└── thanks.mp3           # Random sound 3
+// Play startup sound
+speaker.playStartupSound();
 ```
 
-### Hardware Wiring (Future)
-```
-DFPlayer Mini →  ESP32-C3    | Description
---------------|--------------|-------------
-VCC           →  5V          | Power supply
-GND           →  GND         | Ground
-TX            →  GPIO_RX     | Serial communication
-RX            →  GPIO_TX     | Serial communication
-SPK+          →  Speaker+    | Audio output
-SPK-          →  Speaker-    | Audio output
+### Volume Control
+
+```cpp
+// Set specific volume (0-30)
+speaker.setVolume(20);
+
+// Increment/decrement volume
+speaker.volumeUp();
+speaker.volumeDown();
+
+// Get current volume
+uint8_t volume = speaker.getVolume();
 ```
 
-## Integration Benefits
-- **User Feedback**: Audio confirmation of donations
-- **Mode Identification**: Unique sounds for each mode
-- **Enhanced Experience**: Professional audio-visual feedback
-- **Accessibility**: Audio cues for visually impaired users
+### Playback Control
 
-## Development Notes
-- **Mock Ready**: Current implementation ready for testing
-- **Hardware Agnostic**: Interface works with various audio modules
-- **Easy Upgrade**: Replace mock with hardware implementation
-- **Debug Friendly**: Serial output shows all audio events
+```cpp
+speaker.pause();
+speaker.resume();
+speaker.stop();
+```
+
+## Integration with Donation Detection
+
+Perfect integration with the donation detection system:
+
+```cpp
+// In your main loop
+if (donationDetected) {
+    speaker.playDonationSound();
+}
+```
+
+## Configuration
+
+The service inherits configuration from DFPlayerService. See [DFPlayerService README](../DFPlayerService/README.md) for configuration options.
+
+## Error Handling
+
+- Automatically falls back to mock mode if hardware is unavailable
+- All operations are safe to call even without hardware
+- Logs all actions to Serial for debugging
 
 ## Dependencies
-- Config.h (future pin definitions)
-- Arduino.h (basic functions)
-- Future: SoftwareSerial (for DFPlayer Mini communication)
+
+- DFPlayerService: Low-level DFPlayer Mini control
+- Config.h: Pin definitions and configuration
+
+## API Reference
+
+### Core Methods
+- `setup()`: Initialize the service
+- `loop()`: Call in main loop for maintenance
+- `isReady()`: Check if service is ready
+
+### Audio Playback
+- `playDonationSound()`: Play random donation sound
+- `playRandomSound()`: Alias for playDonationSound()
+- `playSound(String)`: Play specific sound file
+- `playStartupSound()`: Play startup sound
+
+### Volume Control
+- `setVolume(uint8_t)`: Set volume (0-30)
+- `getVolume()`: Get current volume
+- `volumeUp()`: Increase volume
+- `volumeDown()`: Decrease volume
+
+### Playback Control
+- `pause()`: Pause current playback
+- `resume()`: Resume paused playback
+- `stop()`: Stop current playback
+
+### Configuration
+- `enableDebug(bool)`: Enable/disable debug output

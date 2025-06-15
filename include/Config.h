@@ -5,21 +5,23 @@
 // Hardware-specific pin definitions
 #ifdef ESP8266
   // ESP8266 (Wemos D1 Mini) pin configuration
-  #define SENSOR_PIN  D5  // GPIO4 - TCRT5000 donation sensor
-  #define DATA_PIN    D3  // GPIO0 - WS2812B LED strip data line
-#elif defined(ESP32)
+  #define SENSOR_PIN  14 // GPIO5 - TCRT5000 donation sensor
+  #define DATA_PIN    12 // GPIO0 - WS2812B LED strip data line
+  #define DFPLAYER_RX D1 // DFPlayer Mini RX (ESP8266 TX -> DFPlayer RX)
+  #define DFPLAYER_TX D2 // DFPlayer Mini TX (ESP8266 RX <- DFPlayer TX)
+#elif defined(ESP32) 
   // ESP32-C3 (Seeed XIAO) pin configuration  
-  #define SENSOR_PIN  5   // GPIO4 - TCRT5000 donation sensor
-  #define DATA_PIN    3   // GPIO3 - WS2812B LED strip data line
+  #define SENSOR_PIN  2  // GPIO2 - TCRT5000 donation sensor
+  #define DATA_PIN    3  // GPIO3 - WS2812B LED strip data line
+  #define DFPLAYER_RX 4  // GPIO4 - DFPlayer Mini RX (ESP32 TX -> DFPlayer RX)
+  #define DFPLAYER_TX 5  // GPIO5 - DFPlayer Mini TX (ESP32 RX <- DFPlayer TX)
 #else
   // Default fallback configuration
-  #define SENSOR_PIN  4
+  #define SENSOR_PIN  2
   #define DATA_PIN    3
+  #define DFPLAYER_RX 4
+  #define DFPLAYER_TX 5
 #endif
-
-// Legacy DFPlayer pins (currently unused)
-//#define DFPLAYER_RX D5 // DFPlayer Mini RX (ESP8266 TX -> DFPlayer RX)
-//#define DFPLAYER_TX D6 // DFPlayer Mini TX (ESP8266 RX <- DFPlayer TX)
 
 // ============================================================================
 //                              LED CONFIGURATION
@@ -66,6 +68,19 @@
 #define MQTT_TIMEOUT        5000                // MQTT connection timeout in milliseconds
 
 // ============================================================================
+//                            DFPLAYER CONFIGURATION
+// ============================================================================
+#define DFPLAYER_VOLUME     30     // Default volume (0-30)
+#define DFPLAYER_TIMEOUT    500    // Command timeout in milliseconds
+#define DFPLAYER_RETRY      3      // Number of retry attempts
+#define DFPLAYER_BAUD_RATE  9600   // Serial communication baud rate
+
+// Sound file configuration
+#define DONATION_SOUND_COUNT  15   // Number of donation sound files (001.mp3 - 005.mp3)
+#define STARTUP_SOUND_FILE    1    // Startup sound file number
+#define DONATION_SOUND_BASE   1    // Base number for donation sounds (001.mp3, 002.mp3, etc.)
+
+// ============================================================================
 //                          FEATURE TOGGLES
 // ============================================================================
 // Network features (can be overridden in credentials.h)
@@ -78,6 +93,6 @@
 #endif
 
 // Other optional features
-#define ENABLE_SERIAL_DEBUG 1                   // Enable Serial debug output
+#define ENABLE_SERIAL_DEBUG 0                   // Enable Serial debug output (0 = disabled for production)
 #define ENABLE_HEARTBEAT    ENABLE_MQTT         // Enable MQTT heartbeat messages
 #define ENABLE_AUTO_RECONNECT ENABLE_WIFI       // Enable automatic WiFi/MQTT reconnection

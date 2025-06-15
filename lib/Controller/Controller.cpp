@@ -70,7 +70,9 @@ void Controller::loop() {
     if (modeCount == 0) return;
 
     // Check for sensor state changes
-    if (sensorService->risingEdge()) {
+    if (sensorService->risingEdge() && millis() - lastSensorCheck > this->modes[currentModeIndex]->getEffectDuration()) {
+        lastSensorCheck = millis();
+
         String currentModeName = getCurrentModeName();
         Serial.println("[INFO] Donation detected! Mode: " + currentModeName);
         

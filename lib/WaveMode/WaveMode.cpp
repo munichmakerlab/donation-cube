@@ -37,7 +37,7 @@ void WaveMode::donationTriggered() {
     currentSpeed = fastSpeed;
     
     // Play sound
-    speakerService->playSound("wave.mp3");
+    speakerService->playDonationSound();
 }
 
 void WaveMode::loop() {

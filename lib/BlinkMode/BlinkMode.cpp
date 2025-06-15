@@ -43,7 +43,7 @@ void BlinkMode::donationTriggered() {
     currentInterval = fastInterval;
     
     // Play sound
-    speakerService->playSound("sparkle.mp3");
+    speakerService->playDonationSound();
 }
 
 void BlinkMode::loop() {

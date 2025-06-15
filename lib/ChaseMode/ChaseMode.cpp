@@ -23,6 +23,9 @@ void ChaseMode::donationTriggered() {
     Serial.println("[ChaseMode] Donation detected - starting fast chase effect");
     startDonationEffect();
     
+    // Play donation sound
+    speakerService->playDonationSound();
+    
     // Speed up chase during donation
     currentInterval = fastInterval;
     

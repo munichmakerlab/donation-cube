@@ -36,7 +36,7 @@ void StaticMode::donationTriggered() {
     speed = BREATH_SPEED_FAST;
     
     // Play sound
-    speakerService->playRandomSound();
+    speakerService->playDonationSound();
 }
 
 void StaticMode::loop() {
