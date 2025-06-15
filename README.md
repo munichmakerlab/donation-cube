@@ -8,6 +8,8 @@ Professional LED animation system with 6 modes, audio feedback, automatic switch
 **Modes:** Static Breathing | Wave Motion | Random Blink | Half Switch | Center Expansion | Chase Light  
 **Features:** Donation detection with audio feedback, auto mode switching, WiFi/MQTT monitoring, robust startup, standalone mode
 
+![Donation Cube](/media/donation-cube_small.png)_
+
 ### Wiring
 ```
 LED Strip:    VCC→5V, GND→GND, DIN→GPIO3 (ESP32) / GPIO12 (ESP8266)
