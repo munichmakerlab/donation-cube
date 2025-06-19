@@ -21,7 +21,7 @@ class SpeakerService {
         DFRobotDFPlayerMini myDFPlayer;
         bool isInitialized;
         bool isHardwareAvailable;
-        uint8_t currentVolume;
+        uint8_t currentVolume = DFPLAYER_VOLUME; // Default volume level
         
         void printDetail(uint8_t type, int value);
         
@@ -47,7 +47,7 @@ class SpeakerService {
         void volumeDown();
         
         // Direct track playback
-        bool playTrack(uint8_t trackNumber);
+        bool playTrack(int trackNumber);
         
         // Playback control
         void pause();

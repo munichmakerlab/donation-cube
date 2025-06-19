@@ -76,7 +76,7 @@
 #define DFPLAYER_BAUD_RATE  9600   // Serial communication baud rate
 
 // Sound file configuration
-#define DONATION_SOUND_COUNT  15   // Number of donation sound files (001.mp3 - 005.mp3)
+#define DONATION_SOUND_COUNT  16   // Number of donation sound files (001.mp3 - 005.mp3)
 #define STARTUP_SOUND_FILE    1    // Startup sound file number
 #define DONATION_SOUND_BASE   1    // Base number for donation sounds (001.mp3, 002.mp3, etc.)
 

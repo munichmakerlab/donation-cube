@@ -28,6 +28,8 @@ bool SpeakerService::setup() {
     static int bootAttempts = 0;
     bootAttempts++;
 
+    delay(3000); // Wait for 3 seconds to allow hardware to stabilize
+
 #if ENABLE_SERIAL_DEBUG
     Serial.println(F("[SpeakerService] Initializing DFPlayer Mini..."));
     Serial.print(F("[SpeakerService] Boot attempt: "));
@@ -42,7 +44,7 @@ bool SpeakerService::setup() {
     softSerial->begin(DFPLAYER_BAUD_RATE);
     
     // Initialize DFPlayer with software serial - exactly like the example
-    if (!myDFPlayer.begin(*softSerial, /*isACK = */true, /*doReset = */true)) {
+    if (!myDFPlayer.begin(*softSerial, /*isACK = */true, /*doReset = */false)) {
 #if ENABLE_SERIAL_DEBUG
         Serial.println(F("[SpeakerService] Unable to begin:"));
         Serial.println(F("[SpeakerService] 1.Please recheck the connection!"));
@@ -75,8 +77,8 @@ bool SpeakerService::setup() {
     // ESP32 hardware serial configuration
     Serial1.begin(DFPLAYER_BAUD_RATE, SERIAL_8N1, DFPLAYER_RX, DFPLAYER_TX);
     
-    // Initialize DFPlayer with hardware serial - exactly like the example
-    if (!myDFPlayer.begin(Serial1, /*isACK = */true, /*doReset = */true)) {
+    // Initialize DFPlayer with hardware serial
+    if (!myDFPlayer.begin(Serial1, /*isACK = */true, /*doReset = */false)) {
 #if ENABLE_SERIAL_DEBUG
         Serial.println(F("[SpeakerService] Unable to begin:"));
         Serial.println(F("[SpeakerService] 1.Please recheck the connection!"));
@@ -139,19 +141,27 @@ bool SpeakerService::setup() {
     }
 #endif
 
-    isInitialized = true;
-    isHardwareAvailable = true;
-
 #if ENABLE_SERIAL_DEBUG
     Serial.println(F("[SpeakerService] DFPlayer Mini online."));
 #endif
 
+    while(!this->myDFPlayer.available()) {
+        // Wait for DFPlayer to be ready
+        delay(100);
+        Serial.print(F("."));
+    }
+
+    Serial.println(F("[SpeakerService] DFPlayer Mini is ready."));
+
+    isInitialized = true;
+    isHardwareAvailable = true;
+
     // Set default volume - like in the example
     setVolume(currentVolume);
+
+    this->playStartupSound();
     
     return true;
-
-    this->playDonationSound(); // Play a random donation sound on startup
 }
 
 void SpeakerService::loop() {
@@ -249,7 +259,7 @@ void SpeakerService::volumeDown() {
     }
 }
 
-bool SpeakerService::playTrack(uint8_t trackNumber) {
+bool SpeakerService::playTrack(int trackNumber) {
     if (!isReady()) {
         return false;
     }
