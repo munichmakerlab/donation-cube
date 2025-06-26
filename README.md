@@ -173,17 +173,15 @@ float breath = (sin(millis() / 1000.0) + 1.0) / 2.0; // Breathing
 
 ## 🔧 Troubleshooting
 
-**LEDs not working:** Check 5V power, GPIO connection, ground, WS2812B compatibility  
-**Sensor issues:** Adjust sensitivity pot, check 3.3V power, test positioning, verify 500ms cooldown  
-**Audio issues:** Check DFPlayer connections, SD card with 001.mp3-005.mp3 files, 5V power 
-**Audio played in wrong order:** Check the DFPlayer documentation, files are played in order how they are copied on the device. 
-**Audio does only work after controller reset:** DFPlayer needs quite some init time, therefore use some delay at the beginning and check flag doReset
-**Boot loops:** Check serial debug setting (ENABLE_SERIAL_DEBUG), hardware connections  
-**WiFi/MQTT issues:** Verify credentials, network access, or use standalone mode  
-**Build errors:** `pio lib install FastLED DFRobotDFPlayerMini`, verify platformio.ini  
-
-
-**After flashing works, but not after restart:** Set `ENABLE_SERIAL_DEBUG = 0` in Config.h for production use
+* **LEDs not working:** Check 5V power, GPIO connection, ground, WS2812B compatibility  
+* **Sensor issues:** Adjust sensitivity pot, check 3.3V power, test positioning, verify 500ms cooldown  
+* **Audio issues:** Check DFPlayer connections, SD card with 001.mp3-005.mp3 files, 5V power 
+* **Audio played in wrong order:** Check the DFPlayer documentation, files are played in order how they are copied on the device. 
+* **Audio does only work after controller reset:** DFPlayer needs quite some init time, therefore use some delay at the beginning and check flag doReset
+* **Boot loops:** Check serial debug setting (ENABLE_SERIAL_DEBUG), hardware connections  
+* **WiFi/MQTT issues:** Verify credentials, network access, or use standalone mode  
+* **Build errors:** `pio lib install FastLED DFRobotDFPlayerMini`, verify platformio.ini  
+* **After flashing works, but not after restart:** Set `ENABLE_SERIAL_DEBUG = 0` in Config.h for production use
 
 ## 🤝 Contributing
 
